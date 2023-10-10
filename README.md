@@ -54,6 +54,33 @@ shell> ./mysqlstat -H 192.168.198.239 -P 6666 -u admin -p 'hechunyang' --io 10
 ```
 ![image](https://github.com/hcymysql/mysqlstat/assets/19261879/025cc1d2-0548-464b-8e1a-1011ae06b6f2)
 
+- 查看当前锁阻塞的SQL
+```
+shell> ./mysqlstat -H 192.168.198.239 -P 6666 -u admin -p 'hechunyang' --lock
+```
+![image](https://github.com/hcymysql/mysqlstat/assets/19261879/507639a7-92c0-452c-aa0c-dd0eb7653006)
 
+- 查看重复或冗余的索引
+```
+shell> ./mysqlstat -H 192.168.198.239 -P 6666 -u admin -p 'hechunyang' --index
+```
+![image](https://github.com/hcymysql/mysqlstat/assets/19261879/5bbd1b57-7c46-4244-a916-7e61f2e7a55a)
 
+- 查看应用端IP连接数总和
+```
+shell> ./mysqlstat -H 192.168.198.239 -P 6666 -u admin -p 'hechunyang' --conn
+```
+![image](https://github.com/hcymysql/mysqlstat/assets/19261879/cf0c1e44-7ab9-4aa0-9461-e4e927a51da7)
+
+- 统计库里每个表的大小
+```
+shell> ./mysqlstat -H 192.168.198.239 -P 6666 -u admin -p 'hechunyang' --tinfo
+```
+![image](https://github.com/hcymysql/mysqlstat/assets/19261879/9b500c54-2db0-4f43-8d42-ca24f7a12223)
+
+- 查看死锁信息
+```
+shell> ./mysqlstat -H 192.168.198.239 -P 6666 -u admin -p 'hechunyang' --dead
+```
+![image](https://github.com/hcymysql/mysqlstat/assets/19261879/2fb154d3-9d44-4eb1-9580-e43a22173dc0)
 
