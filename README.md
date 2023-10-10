@@ -32,12 +32,17 @@ options:
 ```
 
 # 使用
-
-- 实时监控mysql服务器的QPS、TPS、网络带宽指标
+- 实时监控mysql服务器的QPS、TPS、网络带宽指标（默认不加参数选项）
 ```
 shell> chmod 755 mysqlstat  
-shell>./mysqlstat -H 192.168.198.239 -P 6666 -u admin -p 'hechunyang'
+shell> ./mysqlstat -H 192.168.198.239 -P 6666 -u admin -p 'hechunyang'
 ```
-
-
 ![image](https://github.com/hcymysql/mysqlstat/assets/19261879/d8864b42-4f88-4d3b-9cde-c426c3d35cef)
+
+
+- 增加参数选项，例如--top 10（执行次数最频繁的前10条SQL语句）
+```
+shell> ./mysqlstat -H 192.168.198.239 -P 6666 -u admin -p 'hechunyang' --top 10
+```
+![image](https://github.com/hcymysql/mysqlstat/assets/19261879/11437da2-40c2-4ccf-8f9f-79d9d6f52d3d)
+
