@@ -30,3 +30,9 @@ options:
   --tinfo               统计库里每个表的大小
   -v, --version         show program's version number and exit
 ```
+
+# 使用
+
+  shell> chmod 755 mysqlstat
+  shell>./mysqlstat -H 192.168.198.239 -P 6666 -u admin -p 'hechunyang'
+  
