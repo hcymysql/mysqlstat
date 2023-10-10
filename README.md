@@ -33,6 +33,11 @@ options:
 
 # 使用
 
-  shell> chmod 755 mysqlstat
-  shell>./mysqlstat -H 192.168.198.239 -P 6666 -u admin -p 'hechunyang'
-  
+- 实时监控mysql服务器的QPS、TPS、网络带宽指标
+```
+shell> chmod 755 mysqlstat  
+shell>./mysqlstat -H 192.168.198.239 -P 6666 -u admin -p 'hechunyang'
+```
+
+
+![image](https://github.com/hcymysql/mysqlstat/assets/19261879/d8864b42-4f88-4d3b-9cde-c426c3d35cef)
