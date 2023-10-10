@@ -1,2 +1,4 @@
-# MySQL命令行监控工具 - mysqlstat
+# MySQL命令行监控工具 - mysqlstat 介绍
+
+### mysqlstat 是一个命令行工具，它可以实时监控mysql服务器的QPS、TPS、网络带宽指标，以及查看执行次数最频繁的前N条SQL语句，访问次数最频繁的前N张表文件ibd，查看当前锁阻塞的SQL，查看重复或冗余的索引，查看应用端IP连接数总和，统计库里每个表的大小。
 
