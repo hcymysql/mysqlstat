@@ -84,3 +84,6 @@ shell> ./mysqlstat -H 192.168.198.239 -P 6666 -u admin -p 'hechunyang' --dead
 ```
 ![image](https://github.com/hcymysql/mysqlstat/assets/19261879/2fb154d3-9d44-4eb1-9580-e43a22173dc0)
 
+### 支持 MySQL5.7/8.0，工具适用于Centos7 系统。
+
+### 8.0默认是caching_sha2_password用户认证，需要更改为 mysql_native_password
