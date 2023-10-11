@@ -103,19 +103,6 @@ shell> ./mysqlstat -H 192.168.198.239 -P 6666 -u admin -p 'hechunyang' --repl
 ```
 ![image](https://github.com/hcymysql/mysqlstat/assets/19261879/367617bd-983c-4625-970c-ef5f59f9dec0)
 
-### 最小化权限
-```
-mysql> show grants for rd@'%';
-+--------------------------------------------------------------------------+
-| Grants for rd@%                                                         |
-+--------------------------------------------------------------------------+
-| GRANT PROCESS, REPLICATION SLAVE, REPLICATION CLIENT ON *.* TO 'rd'@'%' |
-| GRANT SELECT, EXECUTE ON `sys`.* TO 'rd'@'%'                            |
-| GRANT SELECT ON `performance_schema`.* TO 'rd'@'%'                      |
-+--------------------------------------------------------------------------+
-3 rows in set (0.00 sec)
-```
-
 ### 支持 MySQL5.7/8.0，工具适用于Centos7 系统。
 
 ### 8.0默认是caching_sha2_password用户认证，需要更改为 mysql_native_password
