@@ -71,7 +71,7 @@ shell> ./mysqlstat -H 192.168.198.239 -P 6666 -u admin -p 'hechunyang' --lock
 ```
 shell> ./mysqlstat -H 192.168.198.239 -P 6666 -u admin -p 'hechunyang' --index
 ```
-![image](https://github.com/hcymysql/mysqlstat/assets/19261879/5bbd1b57-7c46-4244-a916-7e61f2e7a55a)
+![image](https://github.com/hcymysql/mysqlstat/assets/19261879/aebb781f-fcf0-4d41-8364-d381795913df)
 
 - 查看应用端IP连接数总和
 ```
