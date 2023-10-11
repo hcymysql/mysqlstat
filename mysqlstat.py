@@ -701,6 +701,93 @@ def analyze_binlog(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_passwo
         print(f'{table}: {counts}\n')
 
 
+#############################################################################################
+class MySQL_Check(object):
+    """
+    这个类的作用是查看MySQL主从复制信息
+    """
+
+    def __init__(self, host, port, user, password):
+        self._host = host
+        self._port = int(port)
+        self._user = user
+        self._password = password
+        self._connection = None
+        try:
+            self._connection = pymysql.connect(host=self._host, port=self._port, user=self._user, passwd=self._password)
+        except pymysql.Error as e:
+            print("Error %d: %s" % (e.args[0], e.args[1]))
+            sys.exit('MySQL Replication Health is NOT OK!')
+
+    def chek_repl_status(self):
+        cursor = self._connection.cursor(cursor=pymysql.cursors.DictCursor)  # 以字典的形式返回操作结果
+        try:
+            if cursor.execute('SHOW SLAVE HOSTS') >= 1 and cursor.execute('SHOW SLAVE STATUS') == 0:
+                cursor.execute("select host from information_schema.processlist where command like \'%Binlog Dump%\'")
+                s_list = cursor.fetchall()
+                print('%s:%s - 这是一台主库.' % (self._host, self._port))
+                for current_slave in s_list:
+                    slave = current_slave['host'].split(':')[0]
+                    #print(f"+--从库是：{slave}")
+                    print(f" +--{slave}(current slave)")
+            elif cursor.execute('SHOW SLAVE HOSTS') == 0 and cursor.execute('SHOW SLAVE STATUS') == 1:
+                cursor.execute('SHOW SLAVE STATUS')
+                r_dict = cursor.fetchone()
+                print('%s:%s - 这是一台从库. 它与主库 %s:%s 进行复制.' % (self._host, self._port, r_dict['Master_Host'], r_dict['Master_Port']))
+            elif cursor.execute('SHOW SLAVE HOSTS') >= 1 and cursor.execute('SHOW SLAVE STATUS') == 1:
+                cursor.execute('SHOW SLAVE STATUS')
+                r_dict = cursor.fetchone()
+                print('%s:%s - 这是一台级联复制的从库.它与主库 %s:%s 进行复制.' % (self._host, self._port, r_dict['Master_Host'], r_dict['Master_Port']))
+            else:
+                print('\033[1;31m%s:%s - 这台机器你没有设置主从复制.\033[0m' % (self._host, self._port))
+        except pymysql.Error as e:
+            print("Error %d: %s" % (e.args[0], e.args[1]))
+            sys.exit('MySQL Replication Health is NOT OK!')
+        finally:
+            cursor.close()
+
+
+    def get_slave_status(self):
+        cursor = self._connection.cursor(cursor=pymysql.cursors.DictCursor)  # 以字典的形式返回操作结果
+        try:
+            is_slave = cursor.execute('SHOW SLAVE STATUS')
+            r_dict = cursor.fetchone()
+
+            if is_slave == 1:
+                if r_dict['Slave_IO_Running'] == 'Yes' and r_dict['Slave_SQL_Running'] == 'Yes':
+                    if r_dict['Seconds_Behind_Master'] == 0:
+                        print('\033[1;36m同步正常，无延迟. \033[0m')
+                    else:
+                        print('同步正常，但有延迟，延迟时间为：%s' % r_dict['Seconds_Behind_Master'])
+                else:
+                    print('\033[1;31m主从复制报错，请检查. Slave_IO_Running状态值是：%s '
+                                  ' |  Slave_SQL_Running状态值是：%s  \n  \tLast_Error错误信息是：%s'
+                                  '  \n\n  \tLast_SQL_Error错误信息是：%s \033[0m' \
+                                  % (r_dict['Slave_IO_Running'], r_dict['Slave_SQL_Running'], \
+                                     r_dict['Last_Error'], r_dict['Last_SQL_Error']))
+                    repl_error = cursor.execute('select LAST_ERROR_NUMBER,LAST_ERROR_MESSAGE,LAST_ERROR_TIMESTAMP '
+                                                'from performance_schema.replication_applier_status_by_worker '
+                                                'ORDER BY LAST_ERROR_TIMESTAMP desc limit 1')
+                    error_dict = cursor.fetchone()
+                    print('错误号是：%s' % error_dict['LAST_ERROR_NUMBER'])
+                    print('错误信息是：%s' % error_dict['LAST_ERROR_MESSAGE'])
+                    print('报错时间是：%s\n' % error_dict['LAST_ERROR_TIMESTAMP'])
+                    print('MySQL Replication Health is NOT OK!')
+                if r_dict['Auto_Position'] != 1:
+                    print('你没有开启基于GTID全局事务ID复制，请确保CHANGE MASTER TO MASTER_AUTO_POSITION = 1.')
+            else:
+                pass
+
+        except pymysql.Error as e:
+            print("Error %d: %s" % (e.args[0], e.args[1]))
+            sys.exit('MySQL Replication Health is NOT OK!')
+        finally:
+            cursor.close()
+
+
+###### End class MySQL_Check
+
+#############################################################################################
 if __name__ == "__main__":
     # 创建ArgumentParser对象
     parser = argparse.ArgumentParser(description='MySQL命令行监控工具 - mysqlstat')
@@ -714,12 +801,13 @@ if __name__ == "__main__":
     parser.add_argument('--top', type=int, metavar='N', help="需要提供一个整数类型的参数值，该参数值表示执行次数最频繁的前N条SQL语句")
     parser.add_argument('--io', type=int, metavar='N', help="需要提供一个整数类型的参数值，该参数值表示访问次数最频繁的前N张表文件ibd")
     parser.add_argument('--lock', action='store_true', help="查看当前锁阻塞的SQL")
-    parser.add_argument('--dead', action='store_true', help="查看死锁信息")
     parser.add_argument('--index', action='store_true', help="查看重复或冗余的索引")
     parser.add_argument('--conn', action='store_true', help="查看应用端IP连接数总和")
     parser.add_argument('--tinfo', action='store_true', help="统计库里每个表的大小")
+    parser.add_argument('--dead', action='store_true', help="查看死锁信息")
     parser.add_argument('--binlog', nargs='+', help='Binlog分析-高峰期排查哪些表TPS比较高')
-    parser.add_argument('-v', '--version', action='version', version='mysqlstat工具版本号: 1.0.1，更新日期：2023-10-11')
+    parser.add_argument('--repl', action='store_true', help="查看主从复制信息")
+    parser.add_argument('-v', '--version', action='version', version='mysqlstat工具版本号: 1.0.2，更新日期：2023-10-10')
 
     # 解析命令行参数
     args = parser.parse_args()
@@ -738,6 +826,7 @@ if __name__ == "__main__":
     top_table_info = args.tinfo
     top_deadlock = args.dead
     binlog_list = args.binlog
+    replication = args.repl
 
     if top_frequently_sql:
         show_frequently_sql(mysql_ip, mysql_port, mysql_user, mysql_password, top_frequently_sql)
@@ -755,7 +844,13 @@ if __name__ == "__main__":
         show_deadlock_info(mysql_ip, mysql_port, mysql_user, mysql_password)
     if binlog_list:
         analyze_binlog(mysql_ip, mysql_port, mysql_user, mysql_password, binlog_list)
+    if replication:
+        mysql_conn = MySQL_Check(mysql_ip, mysql_port, mysql_user, mysql_password)
+        mysql_conn.chek_repl_status()
+        mysql_conn.get_slave_status()
     if not top_frequently_sql and not top_frequently_io and not top_lock_sql and not top_index_sql \
-       and not top_conn_sql and not top_table_info and not top_deadlock and not binlog_list:
+       and not top_conn_sql and not top_table_info and not top_deadlock and not binlog_list\
+       and not replication:
         mysql_status_monitor(mysql_ip, mysql_port, mysql_user, mysql_password)
 
+#############################################################################################
