@@ -44,7 +44,7 @@ options:
 shell> chmod 755 mysqlstat  
 shell> ./mysqlstat -H 192.168.198.239 -P 6666 -u admin -p 'hechunyang'
 ```
-![image](https://github.com/hcymysql/mysqlstat/assets/19261879/d8864b42-4f88-4d3b-9cde-c426c3d35cef)
+![image](https://github.com/hcymysql/mysqlstat/assets/19261879/a35ca689-3cc0-4ec9-8b5f-6682a1986511)
 
 
 - 执行次数最频繁的前10条SQL语句
