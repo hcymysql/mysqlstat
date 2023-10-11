@@ -1,6 +1,9 @@
 # MySQL命令行监控工具 - mysqlstat 介绍
 
-#### mysqlstat 是一个命令行工具，功能如下：
+#### mysqlstat 是一个命令行工具，用于实时监控和分析 MySQL 服务器的性能指标和相关信息。
+#### 它可以帮助 DBA（数据库管理员）和开发人员定位和解决数据库性能问题。
+#### 以下是 mysqlstat 工具的主要功能：
+---------------------------------------------
 * 实时监控mysql服务器的QPS、TPS、网络带宽指标
 * 查看执行次数最频繁的前N条SQL语句
 * 查看访问次数最频繁的前N张表文件ibd
@@ -9,7 +12,8 @@
 * 查看重复或冗余的索引
 * 查看应用端IP连接数总和
 * 统计库里每个表的大小
-
+* Binlog分析-高峰期排查哪些表TPS比较高
+---------------------------------------------
 ```
 MySQL命令行监控工具 - mysqlstat
 
@@ -30,6 +34,7 @@ options:
   --index               查看重复或冗余的索引
   --conn                查看应用端IP连接数总和
   --tinfo               统计库里每个表的大小
+  --binlog              Binlog分析-高峰期排查哪些表TPS比较高
   -v, --version         show program's version number and exit
 ```
 
@@ -83,6 +88,12 @@ shell> ./mysqlstat -H 192.168.198.239 -P 6666 -u admin -p 'hechunyang' --tinfo
 shell> ./mysqlstat -H 192.168.198.239 -P 6666 -u admin -p 'hechunyang' --dead
 ```
 ![image](https://github.com/hcymysql/mysqlstat/assets/19261879/2fb154d3-9d44-4eb1-9580-e43a22173dc0)
+
+- Binlog分析-高峰期排查哪些表TPS比较高
+```
+shell> ./mysqlstat -H 192.168.198.239 -P 6666 -u admin -p 'hechunyang' --binlog mysql-bin.000003
+```
+![image](https://github.com/hcymysql/mysqlstat/assets/19261879/14ec7453-c5f1-4964-abef-69e04015abf8)
 
 ### 支持 MySQL5.7/8.0，工具适用于Centos7 系统。
 
