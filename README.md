@@ -101,6 +101,7 @@ shell> ./mysqlstat -H 192.168.198.239 -P 6666 -u admin -p 'hechunyang' --binlog 
 ```
 shell> ./mysqlstat -H 192.168.198.239 -P 6666 -u admin -p 'hechunyang' --repl
 ```
+![image](https://github.com/hcymysql/mysqlstat/assets/19261879/367617bd-983c-4625-970c-ef5f59f9dec0)
 
 ### 支持 MySQL5.7/8.0，工具适用于Centos7 系统。
 
