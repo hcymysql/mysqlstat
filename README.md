@@ -119,3 +119,7 @@ mysql> show grants for rd@'%';
 ### 支持 MySQL5.7/8.0，工具适用于Centos7 系统。
 
 ### 8.0默认是caching_sha2_password用户认证，需要更改为 mysql_native_password
+```
+mysql> CREATE USER 'rd'@'%' IDENTIFIED WITH mysql_native_password BY '123456';
+Query OK, 0 rows affected (0.00 sec)
+```
