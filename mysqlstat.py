@@ -8,8 +8,15 @@ from prettytable import PrettyTable
 import textwrap
 import signal
 import argparse
+from pymysqlreplication import BinLogStreamReader
+from pymysqlreplication.row_event import (
+    WriteRowsEvent,
+    UpdateRowsEvent,
+    DeleteRowsEvent
+)
 
-def mysql_status_monitor(mysql_ip:str, mysql_port:int, mysql_user:str, mysql_password:str):
+
+def mysql_status_monitor(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_password: str):
     """
     mysql状态监控工具，监控mysql服务器的QPS、TPS、网络带宽等指标。
     Args:
@@ -40,7 +47,6 @@ def mysql_status_monitor(mysql_ip:str, mysql_port:int, mysql_user:str, mysql_pas
     # 注册信号处理函数
     signal.signal(signal.SIGINT, signal_handler)  # Ctrl+C
     signal.signal(signal.SIGTSTP, signal_handler)  # Ctrl+Z
-
 
     # 创建游标对象
     cursor = conn.cursor()
@@ -122,7 +128,8 @@ def mysql_status_monitor(mysql_ip:str, mysql_port:int, mysql_user:str, mysql_pas
 
         # 添加数据到表格中
         table.add_row([current_time, select_per_second, insert_per_second, update_per_second, delete_per_second,
-                       conn_count, max_conn, "{:.2f}".format(recv_mbps) + " MBit/s", "{:.2f}".format(send_mbps) + " MBit/s"])
+                       conn_count, max_conn, "{:.2f}".format(recv_mbps) + " MBit/s",
+                       "{:.2f}".format(send_mbps) + " MBit/s"])
 
         # 清空控制台
         print("\033c", end="")
@@ -142,7 +149,7 @@ def mysql_status_monitor(mysql_ip:str, mysql_port:int, mysql_user:str, mysql_pas
     conn.close()
 
 
-def show_frequently_sql(mysql_ip:str, mysql_port:int, mysql_user:str, mysql_password:str, top:int):
+def show_frequently_sql(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_password: str, top: int):
     """
     mysql状态监控工具，统计执行次数最频繁的前N条SQL语句。
     Args:
@@ -177,7 +184,8 @@ def show_frequently_sql(mysql_ip:str, mysql_port:int, mysql_user:str, mysql_pass
         sys.exit(0)
     else:
         cursor.execute("SET @sys.statement_truncate_len = 1024")
-        cursor.execute(f"select query,db,last_seen,exec_count,max_latency,avg_latency from sys.statement_analysis order by exec_count desc, last_seen desc limit {top}")
+        cursor.execute(
+            f"select query,db,last_seen,exec_count,max_latency,avg_latency from sys.statement_analysis order by exec_count desc, last_seen desc limit {top}")
         top_info = cursor.fetchall()
 
         # 创建表格对象
@@ -186,7 +194,7 @@ def show_frequently_sql(mysql_ip:str, mysql_port:int, mysql_user:str, mysql_pass
 
         # 设置每列的对齐方式为左对齐
         table.align = "l"
-        
+
         for row in top_info:
             query = row[0]
             db = row[1]
@@ -199,7 +207,7 @@ def show_frequently_sql(mysql_ip:str, mysql_port:int, mysql_user:str, mysql_pass
             wrapped_query = '\n'.join(textwrap.wrap(query, width=70))
 
             # 添加数据到表格中
-            #table.add_row([query, db, last_seen, exec_count, max_latency, avg_latency])
+            # table.add_row([query, db, last_seen, exec_count, max_latency, avg_latency])
             table.add_row([wrapped_query, db, last_seen, exec_count, max_latency, avg_latency])
 
         # 输出表格
@@ -210,7 +218,7 @@ def show_frequently_sql(mysql_ip:str, mysql_port:int, mysql_user:str, mysql_pass
         conn.close()
 
 
-def show_frequently_io(mysql_ip:str, mysql_port:int, mysql_user:str, mysql_password:str, io:int):
+def show_frequently_io(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_password: str, io: int):
     """
     mysql状态监控工具，统计访问次数最频繁的前N个表文件ibd。
     Args:
@@ -244,7 +252,8 @@ def show_frequently_io(mysql_ip:str, mysql_port:int, mysql_user:str, mysql_passw
         sys.exit(0)
     else:
         cursor.execute("SET @sys.statement_truncate_len = 1024")
-        cursor.execute(f"select file,count_read,total_read,count_write,total_written,total from sys.io_global_by_file_by_bytes limit {io}")
+        cursor.execute(
+            f"select file,count_read,total_read,count_write,total_written,total from sys.io_global_by_file_by_bytes limit {io}")
         top_info = cursor.fetchall()
 
         # 创建表格对象
@@ -269,7 +278,7 @@ def show_frequently_io(mysql_ip:str, mysql_port:int, mysql_user:str, mysql_passw
             table.add_row([wrapped_query, count_read, total_read, count_write, total_written, total])
 
             # 添加数据到表格中
-            #table.add_row([file, count_read, total_read, count_write, total_written, total])
+            # table.add_row([file, count_read, total_read, count_write, total_written, total])
 
         # 输出表格
         print(table)
@@ -304,33 +313,34 @@ def show_lock_sql(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_passwor
     cursor = conn.cursor()
 
     cursor.execute(
-                """
-                SELECT 
-                    a.trx_id AS trx_id, 
-                    a.trx_state AS trx_state, 
-                    a.trx_started AS trx_started, 
-                    b.id AS processlist_id, 
-                    b.info AS info, 
-                    b.user AS user, 
-                    b.host AS host, 
-                    b.db AS db, 
-                    b.command AS command, 
-                    b.state AS state, 
-                    CONCAT('KILL QUERY ', b.id) AS sql_kill_blocking_query
-                FROM 
-                    information_schema.INNODB_TRX a, 
-                    information_schema.PROCESSLIST b 
-                WHERE 
-                    a.trx_mysql_thread_id = b.id
-                ORDER BY 
-                    a.trx_started
-                """
+        """
+        SELECT 
+            a.trx_id AS trx_id, 
+            a.trx_state AS trx_state, 
+            a.trx_started AS trx_started, 
+            b.id AS processlist_id, 
+            b.info AS info, 
+            b.user AS user, 
+            b.host AS host, 
+            b.db AS db, 
+            b.command AS command, 
+            b.state AS state, 
+            CONCAT('KILL QUERY ', b.id) AS sql_kill_blocking_query
+        FROM 
+            information_schema.INNODB_TRX a, 
+            information_schema.PROCESSLIST b 
+        WHERE 
+            a.trx_mysql_thread_id = b.id
+        ORDER BY 
+            a.trx_started
+        """
     )
     lock_info = cursor.fetchall()
 
     # 创建表格对象
     table = PrettyTable()
-    table.field_names = ["事务ID", "事务状态", "执行时间", "processlist线程ID", "info", "user", "host", "db", "command", "state", "kill阻塞查询ID"]
+    table.field_names = ["事务ID", "事务状态", "执行时间", "processlist线程ID", "info", "user", "host", "db", "command", "state",
+                         "kill阻塞查询ID"]
 
     # 设置每列的对齐方式为左对齐
     table.align = "l"
@@ -349,11 +359,12 @@ def show_lock_sql(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_passwor
         sql_kill_blocking_query = row[10]
 
         # 处理自动换行
-        #wrapped_query = '\n'.join(textwrap.wrap(query, width=70))
+        # wrapped_query = '\n'.join(textwrap.wrap(query, width=70))
 
         # 添加数据到表格中
-        table.add_row([trx_id,trx_state,trx_started,processlist_id,info,user,host,db,command,state,sql_kill_blocking_query])
-        #table.add_row([wrapped_query, db, last_seen, exec_count, max_latency, avg_latency])
+        table.add_row([trx_id, trx_state, trx_started, processlist_id, info, user, host, db, command, state,
+                       sql_kill_blocking_query])
+        # table.add_row([wrapped_query, db, last_seen, exec_count, max_latency, avg_latency])
 
     # 输出表格
     print(table)
@@ -396,7 +407,8 @@ def show_redundant_indexes(mysql_ip: str, mysql_port: int, mysql_user: str, mysq
         sys.exit(0)
     else:
         cursor.execute("SET @sys.statement_truncate_len = 1024")
-        cursor.execute("select table_schema,table_name,redundant_index_name,redundant_index_columns,sql_drop_index from sys.schema_redundant_indexes")
+        cursor.execute(
+            "select table_schema,table_name,redundant_index_name,redundant_index_columns,sql_drop_index from sys.schema_redundant_indexes")
         redundant_info = cursor.fetchall()
 
         # 创建表格对象
@@ -417,8 +429,8 @@ def show_redundant_indexes(mysql_ip: str, mysql_port: int, mysql_user: str, mysq
             # wrapped_query = '\n'.join(textwrap.wrap(query, width=70))
 
             # 添加数据到表格中
-            table.add_row([table_schema,table_name,redundant_index_name,redundant_index_columns,sql_drop_index])
-            #table.add_row([wrapped_query, db, last_seen, exec_count, max_latency, avg_latency])
+            table.add_row([table_schema, table_name, redundant_index_name, redundant_index_columns, sql_drop_index])
+            # table.add_row([wrapped_query, db, last_seen, exec_count, max_latency, avg_latency])
 
         # 输出表格
         print(table)
@@ -451,8 +463,9 @@ def show_conn_count(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_passw
     # 创建游标对象
     cursor = conn.cursor()
 
-    cursor.execute("SELECT user,db,substring_index(HOST,':',1) AS Client_IP,count(1) AS count FROM information_schema.PROCESSLIST "
-                   "GROUP BY user,db,substring_index(HOST,':',1) ORDER BY COUNT(1) DESC")
+    cursor.execute(
+        "SELECT user,db,substring_index(HOST,':',1) AS Client_IP,count(1) AS count FROM information_schema.PROCESSLIST "
+        "GROUP BY user,db,substring_index(HOST,':',1) ORDER BY COUNT(1) DESC")
     conn_info = cursor.fetchall()
 
     # 创建表格对象
@@ -469,7 +482,7 @@ def show_conn_count(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_passw
         count = row[3]
 
         # 添加数据到表格中
-        table.add_row([user,db,Client_IP,count])
+        table.add_row([user, db, Client_IP, count])
 
     # 输出表格
     print(table)
@@ -504,19 +517,19 @@ def show_table_info(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_passw
 
     cursor.execute("SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''))")
     cursor.execute(
-                    """
-                    SELECT t.TABLE_SCHEMA as TABLE_SCHEMA,t.TABLE_NAME as TABLE_NAME,t.ENGINE as ENGINE,t.DATA_LENGTH/1024/1024/1024 as DATA_LENGTH,
-                    t.INDEX_LENGTH/1024/1024/1024 as INDEX_LENGTH,SUM(t.DATA_LENGTH+t.INDEX_LENGTH)/1024/1024/1024 AS TOTAL_LENGTH,
-                    c.column_name AS COLUMN_NAME,c.data_type AS DATA_TYPE,c.COLUMN_TYPE AS COLUMN_TYPE,t.AUTO_INCREMENT AS AUTO_INCREMENT,
-                    locate('unsigned',c.COLUMN_TYPE) = 0 AS IS_SIGNED 
-                    FROM information_schema.TABLES t JOIN
-                    (
-                    SELECT * FROM information_schema.COLUMNS WHERE extra='auto_increment'
-                    ) c ON t.table_name=c.table_name 
-                    WHERE t.TABLE_SCHEMA NOT IN ('mysql', 'information_schema', 'performance_schema', 'sys') 
-                    GROUP BY TABLE_NAME 
-                    ORDER BY TOTAL_LENGTH DESC,AUTO_INCREMENT DESC
-                    """
+        """
+        SELECT t.TABLE_SCHEMA as TABLE_SCHEMA,t.TABLE_NAME as TABLE_NAME,t.ENGINE as ENGINE,t.DATA_LENGTH/1024/1024/1024 as DATA_LENGTH,
+        t.INDEX_LENGTH/1024/1024/1024 as INDEX_LENGTH,SUM(t.DATA_LENGTH+t.INDEX_LENGTH)/1024/1024/1024 AS TOTAL_LENGTH,
+        c.column_name AS COLUMN_NAME,c.data_type AS DATA_TYPE,c.COLUMN_TYPE AS COLUMN_TYPE,t.AUTO_INCREMENT AS AUTO_INCREMENT,
+        locate('unsigned',c.COLUMN_TYPE) = 0 AS IS_SIGNED 
+        FROM information_schema.TABLES t JOIN
+        (
+        SELECT * FROM information_schema.COLUMNS WHERE extra='auto_increment'
+        ) c ON t.table_name=c.table_name 
+        WHERE t.TABLE_SCHEMA NOT IN ('mysql', 'information_schema', 'performance_schema', 'sys') 
+        GROUP BY TABLE_NAME 
+        ORDER BY TOTAL_LENGTH DESC,AUTO_INCREMENT DESC
+        """
     )
     conn_info = cursor.fetchall()
 
@@ -533,9 +546,9 @@ def show_table_info(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_passw
         TABLE_SCHEMA = row[0]
         TABLE_NAME = row[1]
         ENGINE = row[2]
-        DATA_LENGTH = round(row[3],2)
-        INDEX_LENGTH = round(row[4],2)
-        TOTAL_LENGTH = round(row[5],2)
+        DATA_LENGTH = round(row[3], 2)
+        INDEX_LENGTH = round(row[4], 2)
+        TOTAL_LENGTH = round(row[5], 2)
         COLUMN_NAME = row[6]
         DATA_TYPE = row[7]
         COLUMN_TYPE = row[8]
@@ -561,8 +574,8 @@ def show_table_info(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_passw
         wrapped_RESIDUAL_AUTO_INCREMENT = '\n'.join(textwrap.wrap(str(RESIDUAL_AUTO_INCREMENT), width=20))
 
         # 添加数据到表格中
-        table.add_row([TABLE_SCHEMA,wrapped_TABLE_NAME,ENGINE,DATA_LENGTH,INDEX_LENGTH,TOTAL_LENGTH,
-                       COLUMN_NAME,wrapped_COLUMN_TYPE,wrapped_AUTO_INCREMENT,wrapped_RESIDUAL_AUTO_INCREMENT])
+        table.add_row([TABLE_SCHEMA, wrapped_TABLE_NAME, ENGINE, DATA_LENGTH, INDEX_LENGTH, TOTAL_LENGTH,
+                       COLUMN_NAME, wrapped_COLUMN_TYPE, wrapped_AUTO_INCREMENT, wrapped_RESIDUAL_AUTO_INCREMENT])
 
     # 输出表格
     print(table)
@@ -600,7 +613,7 @@ def show_deadlock_info(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_pa
     rows = cursor.fetchall()
     innodb_status = rows[0][2]
 
-    deadlock_info = re.search(r"LATEST DETECTED DEADLOCK.*?WE ROLL BACK TRANSACTION\s+\(\d+\)", 
+    deadlock_info = re.search(r"LATEST DETECTED DEADLOCK.*?WE ROLL BACK TRANSACTION\s+\(\d+\)",
                               innodb_status, re.DOTALL)
     if deadlock_info:
         print("------------------------")
@@ -612,6 +625,82 @@ def show_deadlock_info(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_pa
     conn.close()
 
 
+def analyze_binlog(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_password: str, binlog_list: list):
+    # 定义MySQL连接设置
+    source_mysql_settings = {
+        "host": mysql_ip,
+        "port": mysql_port,
+        "user": mysql_user,
+        "passwd": mysql_password
+    }
+
+    binlog_start = ""
+    binlog_end = ""
+
+    if len(binlog_list) == 1:
+        binlog_start = binlog_list[0]
+    elif len(binlog_list) == 2:
+        binlog_start = binlog_list[0]
+        binlog_end = binlog_list[1]
+    else:
+        print('只能指定一个或者两个binlog文件。')
+        sys.exit(0)
+
+    # 解析起始和结束索引
+    start_index = int(binlog_start.split('.')[-1])
+    end_index = int(binlog_end.split('.')[-1]) if binlog_end else start_index
+
+    # 根据开始和结束索引生成文件名列表
+    log_files = []
+    for i in range(start_index, end_index+1):
+        # 将文件名拼接起来
+        file_name = binlog_start.split('.')[0] + f'.{i:06d}'
+        log_files.append(file_name)
+
+    print(f'process binlog files is : {log_files}\n')
+
+    # 定义记录表的字典
+    table_counts = {}
+
+    # 定义Binlog解析器
+    for log_file in log_files:
+        # 提取文件名中的数字部分
+        file_number = int(re.search(r'\d+', log_file).group())
+
+        stream = BinLogStreamReader(connection_settings=source_mysql_settings,
+                                    server_id=123456789,
+                                    log_file=log_file,
+                                    resume_stream=False)
+
+        # 开始读取日志
+        for binlogevent in stream:
+            # 只处理数据行事件
+            if isinstance(binlogevent, (WriteRowsEvent, UpdateRowsEvent, DeleteRowsEvent)):
+                # 获取事件的表名和操作类型
+                table = binlogevent.table
+                event_type = type(binlogevent).__name__
+
+                # 初始化记录表的计数器
+                if table not in table_counts:
+                    table_counts[table] = {'insert': 0, 'update': 0, 'delete': 0}
+
+                # 根据操作类型更新计数器
+                if event_type == 'WriteRowsEvent':
+                    table_counts[table]['insert'] += 1
+                elif event_type == 'UpdateRowsEvent':
+                    table_counts[table]['update'] += 1
+                elif event_type == 'DeleteRowsEvent':
+                    table_counts[table]['delete'] += 1
+
+    # 按照操作次数排序输出最终结果
+    sorted_table_counts = sorted(table_counts.items(),
+                                 key=lambda x: sum(x[1].values()), reverse=True)
+
+    # 打印当前文件的统计结果
+    for table, counts in sorted_table_counts:
+        print(f'{table}: {counts}\n')
+
+
 if __name__ == "__main__":
     # 创建ArgumentParser对象
     parser = argparse.ArgumentParser(description='MySQL命令行监控工具 - mysqlstat')
@@ -621,15 +710,16 @@ if __name__ == "__main__":
     parser.add_argument('-P', '--mysql_port', type=int, help='Mysql Port', required=True)
     parser.add_argument('-u', '--mysql_user', type=str, help='Mysql User', required=True)
     parser.add_argument('-p', '--mysql_password', type=str, help='Mysql Password', required=True)
-    #parser.add_argument('-d', '--db_name', type=str, help='Database Name', required=True)
+    # parser.add_argument('-d', '--db_name', type=str, help='Database Name', required=True)
     parser.add_argument('--top', type=int, metavar='N', help="需要提供一个整数类型的参数值，该参数值表示执行次数最频繁的前N条SQL语句")
     parser.add_argument('--io', type=int, metavar='N', help="需要提供一个整数类型的参数值，该参数值表示访问次数最频繁的前N张表文件ibd")
     parser.add_argument('--lock', action='store_true', help="查看当前锁阻塞的SQL")
+    parser.add_argument('--dead', action='store_true', help="查看死锁信息")
     parser.add_argument('--index', action='store_true', help="查看重复或冗余的索引")
     parser.add_argument('--conn', action='store_true', help="查看应用端IP连接数总和")
     parser.add_argument('--tinfo', action='store_true', help="统计库里每个表的大小")
-    parser.add_argument('--dead', action='store_true', help="查看死锁信息")
-    parser.add_argument('-v', '--version', action='version', version='mysqlstat工具版本号: 1.0.1，更新日期：2023-10-10')
+    parser.add_argument('--binlog', nargs='+', help='Binlog分析-高峰期排查哪些表TPS比较高')
+    parser.add_argument('-v', '--version', action='version', version='mysqlstat工具版本号: 1.0.1，更新日期：2023-10-11')
 
     # 解析命令行参数
     args = parser.parse_args()
@@ -639,7 +729,7 @@ if __name__ == "__main__":
     mysql_port = args.mysql_port
     mysql_user = args.mysql_user
     mysql_password = args.mysql_password
-    #db_name = args.db_name
+    # db_name = args.db_name
     top_frequently_sql = args.top
     top_frequently_io = args.io
     top_lock_sql = args.lock
@@ -647,6 +737,7 @@ if __name__ == "__main__":
     top_conn_sql = args.conn
     top_table_info = args.tinfo
     top_deadlock = args.dead
+    binlog_list = args.binlog
 
     if top_frequently_sql:
         show_frequently_sql(mysql_ip, mysql_port, mysql_user, mysql_password, top_frequently_sql)
@@ -662,7 +753,9 @@ if __name__ == "__main__":
         show_table_info(mysql_ip, mysql_port, mysql_user, mysql_password)
     if top_deadlock:
         show_deadlock_info(mysql_ip, mysql_port, mysql_user, mysql_password)
+    if binlog_list:
+        analyze_binlog(mysql_ip, mysql_port, mysql_user, mysql_password, binlog_list)
     if not top_frequently_sql and not top_frequently_io and not top_lock_sql and not top_index_sql \
-        and not top_conn_sql and not top_table_info and not top_deadlock:
+       and not top_conn_sql and not top_table_info and not top_deadlock and not binlog_list:
         mysql_status_monitor(mysql_ip, mysql_port, mysql_user, mysql_password)
 
