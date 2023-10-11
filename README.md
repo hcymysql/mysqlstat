@@ -13,6 +13,7 @@
 * 连接数统计：工具可以统计应用端 IP 的连接数总和，有助于了解数据库的连接负载情况。
 * 表大小统计：mysqlstat 可以提供库中每个表的大小统计信息，有助于了解表的存储占用情况。
 * Binlog 分析：它可以在高峰期分析哪些表的 TPS 较高，帮助定位性能瓶颈或优化热点表。
+* 查看主从复制信息：工具可以提供主从复制状态和延迟情况，方便监控和管理主从复制环境。
 ---------------------------------------------
 ```
 MySQL命令行监控工具 - mysqlstat
@@ -35,6 +36,7 @@ options:
   --conn                查看应用端IP连接数总和
   --tinfo               统计库里每个表的大小
   --binlog              Binlog分析-高峰期排查哪些表TPS比较高
+  --repl                查看主从复制信息
   -v, --version         show program's version number and exit
 ```
 
@@ -94,6 +96,11 @@ shell> ./mysqlstat -H 192.168.198.239 -P 6666 -u admin -p 'hechunyang' --dead
 shell> ./mysqlstat -H 192.168.198.239 -P 6666 -u admin -p 'hechunyang' --binlog mysql-bin.000003
 ```
 ![image](https://github.com/hcymysql/mysqlstat/assets/19261879/14ec7453-c5f1-4964-abef-69e04015abf8)
+
+- 查看主从复制信息
+```
+shell> ./mysqlstat -H 192.168.198.239 -P 6666 -u admin -p 'hechunyang' --repl
+```
 
 ### 支持 MySQL5.7/8.0，工具适用于Centos7 系统。
 
