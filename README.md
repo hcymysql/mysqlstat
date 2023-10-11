@@ -15,7 +15,7 @@
 * Binlog 分析：它可以在高峰期分析哪些表的 TPS 较高，帮助定位性能瓶颈或优化热点表。
 * 查看主从复制信息：工具可以提供主从复制状态和延迟情况，方便监控和管理主从复制环境。
 
-![image](https://github.com/hcymysql/mysqlstat/assets/19261879/9a05e839-d1e3-4e14-aa21-1850e95e76f6)
+![image](https://github.com/hcymysql/mysqlstat/assets/19261879/1d4791f9-5cb9-48e5-85b5-c97cb65cb89f)
 
 ---------------------------------------------
 ```
