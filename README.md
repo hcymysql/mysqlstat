@@ -31,8 +31,8 @@ options:
                         Mysql User
   -p MYSQL_PASSWORD, --mysql_password MYSQL_PASSWORD
                         Mysql Password
-  --top TOP             需要提供一个整数类型的参数值，该参数值表示执行次数最频繁的前N条SQL语句
-  --io IO               需要提供一个整数类型的参数值，该参数值表示访问次数最频繁的前N张表文件ibd
+  --top  N              需要提供一个整数类型的参数值，该参数值表示执行次数最频繁的前N条SQL语句
+  --io  N               需要提供一个整数类型的参数值，该参数值表示访问次数最频繁的前N张表文件ibd
   --lock                查看当前锁阻塞的SQL
   --dead                查看死锁信息
   --index               查看重复或冗余的索引
