@@ -43,6 +43,10 @@ options:
   -v, --version         show program's version number and exit
 ```
 
+# 演示
+
+https://www.douyin.com/video/7288887720057851151
+
 # 使用
 - 实时监控mysql服务器的QPS、TPS、网络带宽指标（默认不加参数选项）
 ```
