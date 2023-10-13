@@ -738,6 +738,11 @@ class MySQL_Check(object):
                 cursor.execute('SHOW SLAVE STATUS')
                 r_dict = cursor.fetchone()
                 print('%s:%s - 这是一台级联复制的从库.它与主库 %s:%s 进行复制.' % (self._host, self._port, r_dict['Master_Host'], r_dict['Master_Port']))
+                cursor.execute("select host from information_schema.processlist where command like \'%Binlog Dump%\'")
+                s_list = cursor.fetchall()
+                for current_slave in s_list:
+                    slave = current_slave['host'].split(':')[0]
+                    print(f" +--{slave}(二级从库)")
             else:
                 print('\033[1;31m%s:%s - 这台机器你没有设置主从复制.\033[0m' % (self._host, self._port))
         except pymysql.Error as e:
@@ -807,7 +812,7 @@ if __name__ == "__main__":
     parser.add_argument('--dead', action='store_true', help="查看死锁信息")
     parser.add_argument('--binlog', nargs='+', help='Binlog分析-高峰期排查哪些表TPS比较高')
     parser.add_argument('--repl', action='store_true', help="查看主从复制信息")
-    parser.add_argument('-v', '--version', action='version', version='mysqlstat工具版本号: 1.0.2，更新日期：2023-10-10')
+    parser.add_argument('-v', '--version', action='version', version='mysqlstat工具版本号: 1.0.3，更新日期：2023-10-13')
 
     # 解析命令行参数
     args = parser.parse_args()
