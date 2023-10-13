@@ -105,6 +105,12 @@ shell> ./mysqlstat -H 192.168.198.239 -P 6666 -u admin -p 'hechunyang' --binlog 
 ```
 ![image](https://github.com/hcymysql/mysqlstat/assets/19261879/14ec7453-c5f1-4964-abef-69e04015abf8)
 
+或者指定一个binlog范围
+```
+shell> ./mysqlstat -H 192.168.198.239 -P 6666 -u admin -p 'hechunyang' --binlog  mysql-bin.000003  mysql-bin.000006
+```
+会统计mysql-bin.000003，mysql-bin.000004，mysql-bin.000005，mysql-bin.000006这4个文件
+
 - 查看主从复制信息
 ```
 shell> ./mysqlstat -H 192.168.198.239 -P 6666 -u admin -p 'hechunyang' --repl
