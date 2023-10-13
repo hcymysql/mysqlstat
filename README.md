@@ -1,5 +1,5 @@
 # MySQL命令行监控工具 - mysqlstat 介绍
-
+https://www.oschina.net/p/mysqlstat
 #### mysqlstat 是一个命令行工具，用于实时监控和分析 MySQL 服务器的性能指标和相关信息。
 #### 它可以帮助 DBA（数据库管理员）和开发人员定位和解决数据库性能问题。
 #### 以下是 mysqlstat 工具的主要功能：
