@@ -15,9 +15,15 @@
 * Binlog 分析：它可以在高峰期分析哪些表的 TPS 较高，帮助定位性能瓶颈或优化热点表。
 * 查看主从复制信息：工具可以提供主从复制状态和延迟情况，方便监控和管理主从复制环境。
 
+# 原理
 ![image](https://github.com/hcymysql/mysqlstat/assets/19261879/1d4791f9-5cb9-48e5-85b5-c97cb65cb89f)
 
 ---------------------------------------------
+# 演示
+
+https://www.douyin.com/video/7288887720057851151
+
+# 使用
 ```
 MySQL命令行监控工具 - mysqlstat
 
@@ -43,11 +49,6 @@ options:
   -v, --version         show program's version number and exit
 ```
 
-# 演示
-
-https://www.douyin.com/video/7288887720057851151
-
-# 使用
 - 实时监控mysql服务器的QPS、TPS、网络带宽指标（默认不加参数选项）
 ```
 shell> chmod 755 mysqlstat  
@@ -115,5 +116,5 @@ shell> ./mysqlstat -H 192.168.198.239 -P 6666 -u admin -p 'hechunyang' --repl
 ### 8.0默认是caching_sha2_password用户认证，需要更改为 mysql_native_password
 ```
 mysql> CREATE USER 'rd'@'%' IDENTIFIED WITH mysql_native_password BY '123456';
-Query OK, 0 rows affected (0.00 sec)
+mysql> GRANT ALL on *.* to 'rd'@'%';
 ```
