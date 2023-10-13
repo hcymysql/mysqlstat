@@ -137,6 +137,9 @@ def mysql_status_monitor(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_
         # 输出表格
         print(table)
 
+        # 输出表格后立即清空缓冲区
+        sys.stdout.flush()
+
         count += 1
         if count % 25 == 0:
             print(table)
