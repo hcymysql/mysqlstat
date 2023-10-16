@@ -342,7 +342,7 @@ def show_lock_sql(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_passwor
 
     # 创建表格对象
     table = PrettyTable()
-    table.field_names = ["事务ID", "事务状态", "执行时间", "processlist线程ID", "info", "user", "host", "db", "command", "state",
+    table.field_names = ["事务ID", "事务状态", "执行时间", "线程ID", "info", "user", "host", "db", "command", "state",
                          "kill阻塞查询ID"]
 
     # 设置每列的对齐方式为左对齐
@@ -362,12 +362,14 @@ def show_lock_sql(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_passwor
         sql_kill_blocking_query = row[10]
 
         # 处理自动换行
-        # wrapped_query = '\n'.join(textwrap.wrap(query, width=70))
+        wrapped_trx_started  = '\n'.join(textwrap.wrap(str(trx_started), width=15))
+        wrapped_info = '\n'.join(textwrap.wrap(info, width=20))
+        wrapped_host = '\n'.join(textwrap.wrap(host, width=10))
+        wrapped_state = '\n'.join(textwrap.wrap(state, width=10))
 
         # 添加数据到表格中
-        table.add_row([trx_id, trx_state, trx_started, processlist_id, info, user, host, db, command, state,
+        table.add_row([trx_id, trx_state, wrapped_trx_started, processlist_id, wrapped_info, user, wrapped_host, db, command, wrapped_state,
                        sql_kill_blocking_query])
-        # table.add_row([wrapped_query, db, last_seen, exec_count, max_latency, avg_latency])
 
     # 输出表格
     print(table)
@@ -815,7 +817,7 @@ if __name__ == "__main__":
     parser.add_argument('--dead', action='store_true', help="查看死锁信息")
     parser.add_argument('--binlog', nargs='+', help='Binlog分析-高峰期排查哪些表TPS比较高')
     parser.add_argument('--repl', action='store_true', help="查看主从复制信息")
-    parser.add_argument('-v', '--version', action='version', version='mysqlstat工具版本号: 1.0.3，更新日期：2023-10-13')
+    parser.add_argument('-v', '--version', action='version', version='mysqlstat工具版本号: 1.0.4，更新日期：2023-10-16')
 
     # 解析命令行参数
     args = parser.parse_args()
