@@ -207,7 +207,7 @@ def show_frequently_sql(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_p
             avg_latency = row[5]
 
             # 处理自动换行
-            wrapped_query = '\n'.join(textwrap.wrap(query, width=70))
+            wrapped_query = '\n'.join(textwrap.wrap(str(query), width=70))
 
             # 添加数据到表格中
             # table.add_row([query, db, last_seen, exec_count, max_latency, avg_latency])
@@ -275,7 +275,7 @@ def show_frequently_io(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_pa
             total = row[5]
 
             # 处理自动换行
-            wrapped_query = '\n'.join(textwrap.wrap(file, width=70))
+            wrapped_query = '\n'.join(textwrap.wrap(str(file), width=70))
 
             # 添加数据到表格中
             table.add_row([wrapped_query, count_read, total_read, count_write, total_written, total])
@@ -363,12 +363,12 @@ def show_lock_sql(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_passwor
 
         # 处理自动换行
         wrapped_trx_started  = '\n'.join(textwrap.wrap(str(trx_started), width=15))
-        wrapped_info = '\n'.join(textwrap.wrap(info, width=20))
-        wrapped_host = '\n'.join(textwrap.wrap(host, width=10))
-        wrapped_state = '\n'.join(textwrap.wrap(state, width=10))
+        wrapped_info = '\n'.join(textwrap.wrap(str(info), width=20))
+        wrapped_host = '\n'.join(textwrap.wrap(str(host), width=10))
+        wrapped_state = '\n'.join(textwrap.wrap(str(state), width=10))
 
         # 添加数据到表格中
-        table.add_row([trx_id, trx_state, wrapped_trx_started, processlist_id, wrapped_info, user, wrapped_host, db, command, wrapped_state,
+        table.add_row([trx_id, trx_state, wrapped_trx_started, processlist_id, info, user, wrapped_host, db, command, wrapped_state,
                        sql_kill_blocking_query])
 
     # 输出表格
@@ -573,8 +573,8 @@ def show_table_info(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_passw
                 RESIDUAL_AUTO_INCREMENT = Decimal("9223372036854775807") - Decimal(AUTO_INCREMENT)
 
         # 处理自动换行
-        wrapped_TABLE_NAME = '\n'.join(textwrap.wrap(TABLE_NAME, width=20))
-        wrapped_COLUMN_TYPE = '\n'.join(textwrap.wrap(COLUMN_TYPE, width=10))
+        wrapped_TABLE_NAME = '\n'.join(textwrap.wrap(str(TABLE_NAME), width=20))
+        wrapped_COLUMN_TYPE = '\n'.join(textwrap.wrap(str(COLUMN_TYPE), width=10))
         wrapped_AUTO_INCREMENT = '\n'.join(textwrap.wrap(str(AUTO_INCREMENT), width=20))
         wrapped_RESIDUAL_AUTO_INCREMENT = '\n'.join(textwrap.wrap(str(RESIDUAL_AUTO_INCREMENT), width=20))
 
