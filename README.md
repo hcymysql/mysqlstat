@@ -73,7 +73,7 @@ shell> ./mysqlstat -H 192.168.198.239 -P 6666 -u admin -p 'hechunyang' --io 10
 ```
 shell> ./mysqlstat -H 192.168.198.239 -P 6666 -u admin -p 'hechunyang' --lock
 ```
-![image](https://github.com/hcymysql/mysqlstat/assets/19261879/2482a30a-84e9-4b04-b811-6cef5f14e196)
+![image](https://github.com/hcymysql/mysqlstat/assets/19261879/168493c0-0b87-49b5-8801-cc10b2fca935)
 
 - 查看重复或冗余的索引
 ```
