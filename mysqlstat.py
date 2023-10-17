@@ -530,7 +530,7 @@ def show_table_info(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_passw
         FROM information_schema.TABLES t JOIN
         (
         SELECT * FROM information_schema.COLUMNS WHERE extra='auto_increment'
-        ) c ON t.table_name=c.table_name 
+        ) c ON t.TABLE_SCHEMA = c.TABLE_SCHEMA AND t.table_name=c.table_name 
         WHERE t.TABLE_SCHEMA NOT IN ('mysql', 'information_schema', 'performance_schema', 'sys') 
         GROUP BY TABLE_NAME 
         ORDER BY TOTAL_LENGTH DESC,AUTO_INCREMENT DESC
@@ -559,7 +559,7 @@ def show_table_info(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_passw
         COLUMN_TYPE = row[8]
         AUTO_INCREMENT = row[9]
         IS_SIGNED = row[10]
-
+        #print(TABLE_NAME, AUTO_INCREMENT)
         if DATA_TYPE == 'int':
             if IS_SIGNED == 0:
                 RESIDUAL_AUTO_INCREMENT = int(4294967295 - AUTO_INCREMENT)
@@ -817,7 +817,7 @@ if __name__ == "__main__":
     parser.add_argument('--dead', action='store_true', help="查看死锁信息")
     parser.add_argument('--binlog', nargs='+', help='Binlog分析-高峰期排查哪些表TPS比较高')
     parser.add_argument('--repl', action='store_true', help="查看主从复制信息")
-    parser.add_argument('-v', '--version', action='version', version='mysqlstat工具版本号: 1.0.4，更新日期：2023-10-16')
+    parser.add_argument('-v', '--version', action='version', version='mysqlstat工具版本号: 1.0.5，更新日期：2023-10-16')
 
     # 解析命令行参数
     args = parser.parse_args()
