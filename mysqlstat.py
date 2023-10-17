@@ -817,7 +817,7 @@ if __name__ == "__main__":
     parser.add_argument('--dead', action='store_true', help="查看死锁信息")
     parser.add_argument('--binlog', nargs='+', help='Binlog分析-高峰期排查哪些表TPS比较高')
     parser.add_argument('--repl', action='store_true', help="查看主从复制信息")
-    parser.add_argument('-v', '--version', action='version', version='mysqlstat工具版本号: 1.0.5，更新日期：2023-10-16')
+    parser.add_argument('-v', '--version', action='version', version='mysqlstat工具版本号: 1.0.5，更新日期：2023-10-17')
 
     # 解析命令行参数
     args = parser.parse_args()
