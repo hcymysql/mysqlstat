@@ -524,15 +524,16 @@ def show_table_info(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_passw
     cursor.execute(
         """
         SELECT t.TABLE_SCHEMA as TABLE_SCHEMA, t.TABLE_NAME as TABLE_NAME, t.ENGINE as ENGINE,
-            t.DATA_LENGTH/1024/1024/1024 as DATA_LENGTH, t.INDEX_LENGTH/1024/1024/1024 as INDEX_LENGTH,
-            SUM(t.DATA_LENGTH+t.INDEX_LENGTH)/1024/1024/1024 AS TOTAL_LENGTH,
+            IFNULL(t.DATA_LENGTH/1024/1024/1024, 0) as DATA_LENGTH,
+            IFNULL(t.INDEX_LENGTH/1024/1024/1024, 0) as INDEX_LENGTH,
+            IFNULL(SUM(t.DATA_LENGTH+t.INDEX_LENGTH)/1024/1024/1024, 0) AS TOTAL_LENGTH,
             c.column_name AS COLUMN_NAME, c.data_type AS DATA_TYPE, c.COLUMN_TYPE AS COLUMN_TYPE,
             t.AUTO_INCREMENT AS AUTO_INCREMENT, locate('unsigned', c.COLUMN_TYPE) = 0 AS IS_SIGNED 
         FROM information_schema.TABLES t 
         JOIN information_schema.COLUMNS c ON t.TABLE_SCHEMA = c.TABLE_SCHEMA AND t.table_name=c.table_name 
         WHERE t.TABLE_SCHEMA NOT IN ('mysql', 'information_schema', 'performance_schema', 'sys') 
         GROUP BY TABLE_NAME 
-        ORDER BY TOTAL_LENGTH DESC, AUTO_INCREMENT DESC
+        ORDER BY TOTAL_LENGTH DESC, AUTO_INCREMENT DESC;
         """
     )
     conn_info = cursor.fetchall()
@@ -550,9 +551,9 @@ def show_table_info(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_passw
         TABLE_SCHEMA = row[0]
         TABLE_NAME = row[1]
         ENGINE = row[2]
-        DATA_LENGTH = round(row[3], 2)
-        INDEX_LENGTH = round(row[4], 2)
-        TOTAL_LENGTH = round(row[5], 2)
+        DATA_LENGTH = round(row[3] or 0, 2)
+        INDEX_LENGTH = round(row[4] or 0, 2)
+        TOTAL_LENGTH = round(row[5] or 0, 2)
         COLUMN_NAME = row[6]
         DATA_TYPE = row[7]
         COLUMN_TYPE = row[8]
