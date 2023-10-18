@@ -526,7 +526,7 @@ def show_table_info(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_passw
         SELECT t.TABLE_SCHEMA as TABLE_SCHEMA, t.TABLE_NAME as TABLE_NAME, t.ENGINE as ENGINE,
             IFNULL(t.DATA_LENGTH/1024/1024/1024, 0) as DATA_LENGTH,
             IFNULL(t.INDEX_LENGTH/1024/1024/1024, 0) as INDEX_LENGTH,
-            IFNULL(SUM(t.DATA_LENGTH+t.INDEX_LENGTH)/1024/1024/1024, 0) AS TOTAL_LENGTH,
+            IFNULL((DATA_LENGTH+INDEX_LENGTH)/1024/1024/1024, 0) AS TOTAL_LENGTH,
             c.column_name AS COLUMN_NAME, c.data_type AS DATA_TYPE, c.COLUMN_TYPE AS COLUMN_TYPE,
             t.AUTO_INCREMENT AS AUTO_INCREMENT, locate('unsigned', c.COLUMN_TYPE) = 0 AS IS_SIGNED 
         FROM information_schema.TABLES t 
@@ -540,7 +540,7 @@ def show_table_info(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_passw
 
     # 创建表格对象
     table = PrettyTable()
-    table.field_names = ["库名", "表名", "存储引擎", "数据大小(GB)", "索引大小(GB)", "总计(GB)", "主键自增字段", "主键字段属性", "主键自增当前值", "主键自增值剩余"]
+    table.field_names = ["库名", "表名", "存储引擎", "数据大小(GB)", "索引大小(GB)", "总计(GB)", "主键字段名", "主键字段属性", "主键自增当前值", "主键自增值剩余"]
 
     # 设置每列的对齐方式为左对齐
     table.align = "l"
@@ -820,7 +820,7 @@ if __name__ == "__main__":
     parser.add_argument('--dead', action='store_true', help="查看死锁信息")
     parser.add_argument('--binlog', nargs='+', help='Binlog分析-高峰期排查哪些表TPS比较高')
     parser.add_argument('--repl', action='store_true', help="查看主从复制信息")
-    parser.add_argument('-v', '--version', action='version', version='mysqlstat工具版本号: 1.0.6，更新日期：2023-10-18')
+    parser.add_argument('-v', '--version', action='version', version='mysqlstat工具版本号: 1.0.7，更新日期：2023-10-18')
 
     # 解析命令行参数
     args = parser.parse_args()
