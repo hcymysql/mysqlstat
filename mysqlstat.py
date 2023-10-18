@@ -362,14 +362,17 @@ def show_lock_sql(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_passwor
         sql_kill_blocking_query = row[10]
 
         # 处理自动换行
+        wrapped_trx_id  = '\n'.join(textwrap.wrap(str(trx_id), width=10))
         wrapped_trx_started  = '\n'.join(textwrap.wrap(str(trx_started), width=15))
-        wrapped_info = '\n'.join(textwrap.wrap(str(info), width=20))
+        wrapped_info = '\n'.join(textwrap.wrap(str(info), width=35))
         wrapped_host = '\n'.join(textwrap.wrap(str(host), width=10))
         wrapped_state = '\n'.join(textwrap.wrap(str(state), width=10))
+        wrapped_sql_kill_blocking_query = '\n'.join(textwrap.wrap(str(sql_kill_blocking_query), width=10))
 
         # 添加数据到表格中
-        table.add_row([trx_id, trx_state, wrapped_trx_started, processlist_id, info, user, wrapped_host, db, command, wrapped_state,
-                       sql_kill_blocking_query])
+        table.add_row([wrapped_trx_id, trx_state, wrapped_trx_started, processlist_id, wrapped_info, user, wrapped_host, db, command, wrapped_state,
+                       wrapped_sql_kill_blocking_query])
+        #table.add_row(['-','-','-','-','-','-','-','-','-','-','-'])
 
     # 输出表格
     print(table)
@@ -820,7 +823,7 @@ if __name__ == "__main__":
     parser.add_argument('--dead', action='store_true', help="查看死锁信息")
     parser.add_argument('--binlog', nargs='+', help='Binlog分析-高峰期排查哪些表TPS比较高')
     parser.add_argument('--repl', action='store_true', help="查看主从复制信息")
-    parser.add_argument('-v', '--version', action='version', version='mysqlstat工具版本号: 1.0.7，更新日期：2023-10-18')
+    parser.add_argument('-v', '--version', action='version', version='mysqlstat工具版本号: 1.0.8，更新日期：2023-10-18')
 
     # 解析命令行参数
     args = parser.parse_args()
