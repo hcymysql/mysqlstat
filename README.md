@@ -85,13 +85,13 @@ shell> ./mysqlstat -H 192.168.198.239 -P 6666 -u admin -p 'hechunyang' --index
 ```
 shell> ./mysqlstat -H 192.168.198.239 -P 6666 -u admin -p 'hechunyang' --conn
 ```
-![image](https://github.com/hcymysql/mysqlstat/assets/19261879/cf0c1e44-7ab9-4aa0-9461-e4e927a51da7)
+![image](https://github.com/hcymysql/mysqlstat/assets/19261879/8d3944ad-5c6b-45fb-8906-bc5495a45ba2)
 
 - 统计库里每个表的大小
 ```
 shell> ./mysqlstat -H 192.168.198.239 -P 6666 -u admin -p 'hechunyang' --tinfo
 ```
-![image](https://github.com/hcymysql/mysqlstat/assets/19261879/9b500c54-2db0-4f43-8d42-ca24f7a12223)
+![image](https://github.com/hcymysql/mysqlstat/assets/19261879/2aa0d90b-02aa-42d1-b421-937ce794bb8d)
 
 - 查看死锁信息
 ```
