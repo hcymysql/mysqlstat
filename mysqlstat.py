@@ -476,6 +476,9 @@ def show_conn_count(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_passw
         "GROUP BY user,db,substring_index(HOST,':',1) ORDER BY COUNT(1) DESC")
     conn_info = cursor.fetchall()
 
+    cursor.execute("SELECT USER, COUNT(*) FROM information_schema.PROCESSLIST GROUP BY USER ORDER BY COUNT(*) DESC")
+    count_info = cursor.fetchall()
+
     # 创建表格对象
     table = PrettyTable()
     table.field_names = ["连接用户", "数据库名", "应用端IP", "数量"]
@@ -492,6 +495,27 @@ def show_conn_count(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_passw
         # 添加数据到表格中
         table.add_row([user, db, Client_IP, count])
 
+    table2 = PrettyTable()
+    table2.field_names = ["连接用户", "数量"]
+     
+    # 设置每列的对齐方式为左对齐
+    table2.align = "l"
+
+    c_s = 0
+    for row in count_info:
+        user = row[0]
+        count = row[1]
+        c_s = c_s + count
+
+        # 添加数据到表格中
+        table2.add_row([user, count])
+
+    print("1) 连接数总和")
+    print(table2)
+    print(f"{mysql_ip}:{mysql_port} 这台数据库，总共有 【{c_s}】 个连接数")
+
+    print()
+    print("2) 应用端IP连接数总和")
     # 输出表格
     print(table)
 
