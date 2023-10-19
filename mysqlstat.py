@@ -207,11 +207,13 @@ def show_frequently_sql(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_p
             avg_latency = row[5]
 
             # 处理自动换行
+            wrapped_last_seen  = '\n'.join(textwrap.wrap(str(last_seen), width=15))
             wrapped_query = '\n'.join(textwrap.wrap(str(query), width=70))
 
             # 添加数据到表格中
             # table.add_row([query, db, last_seen, exec_count, max_latency, avg_latency])
-            table.add_row([wrapped_query, db, last_seen, exec_count, max_latency, avg_latency])
+            table.add_row([wrapped_query, db, wrapped_last_seen, exec_count, max_latency, avg_latency])
+            table.add_row("------")            
 
         # 输出表格
         print(table)
