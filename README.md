@@ -74,6 +74,9 @@ shell> ./mysqlstat -H 192.168.198.239 -P 6666 -u admin -p 'hechunyang' --io 10
 - 查看当前锁阻塞的SQL
 ```
 shell> ./mysqlstat -H 192.168.198.239 -P 6666 -u admin -p 'hechunyang' --lock
+或
+shell> #杀死当前锁阻塞的SQL
+shell> ./mysqlstat -H 192.168.198.239 -P 6666 -u admin -p 'hechunyang' --lock --kill
 ```
 ![image](https://github.com/hcymysql/mysqlstat/assets/19261879/168493c0-0b87-49b5-8801-cc10b2fca935)
 
