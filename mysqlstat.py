@@ -293,7 +293,7 @@ def show_frequently_io(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_pa
         conn.close()
 
 
-def show_lock_sql(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_password: str):
+def show_lock_sql(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_password: str, kill_status: int = 0):
     """
     mysql状态监控工具，查看当前锁阻塞的SQL。
     Args:
@@ -378,6 +378,17 @@ def show_lock_sql(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_passwor
 
     # 输出表格
     print(table)
+
+    # kill掉被锁住的SQL
+    if kill_status == 1:
+        for row in lock_info:
+            sql_kill_blocking_query = row[10]
+            sql_kill_blocking_query = sql_kill_blocking_query.replace("QUERY", "CONNECTION")
+            try:
+                cursor.execute(sql_kill_blocking_query)
+                print(f"已成功执行 {sql_kill_blocking_query}")
+            except Exception as e:
+                print(f"执行失败,错误原因:{e}")
 
     # 关闭游标和连接
     cursor.close()
@@ -844,13 +855,14 @@ if __name__ == "__main__":
     parser.add_argument('--top', type=int, metavar='N', help="需要提供一个整数类型的参数值，该参数值表示执行次数最频繁的前N条SQL语句")
     parser.add_argument('--io', type=int, metavar='N', help="需要提供一个整数类型的参数值，该参数值表示访问次数最频繁的前N张表文件ibd")
     parser.add_argument('--lock', action='store_true', help="查看当前锁阻塞的SQL")
+    parser.add_argument('--kill', action='store_true', help="杀死当前锁阻塞的SQL")
     parser.add_argument('--index', action='store_true', help="查看重复或冗余的索引")
     parser.add_argument('--conn', action='store_true', help="查看应用端IP连接数总和")
     parser.add_argument('--tinfo', action='store_true', help="统计库里每个表的大小")
     parser.add_argument('--dead', action='store_true', help="查看死锁信息")
     parser.add_argument('--binlog', nargs='+', help='Binlog分析-高峰期排查哪些表TPS比较高')
     parser.add_argument('--repl', action='store_true', help="查看主从复制信息")
-    parser.add_argument('-v', '--version', action='version', version='mysqlstat工具版本号: 1.0.9，更新日期：2023-10-19')
+    parser.add_argument('-v', '--version', action='version', version='mysqlstat工具版本号: 1.0.10，更新日期：2023-10-20')
 
     # 解析命令行参数
     args = parser.parse_args()
@@ -870,13 +882,21 @@ if __name__ == "__main__":
     top_deadlock = args.dead
     binlog_list = args.binlog
     replication = args.repl
+    kill_query = args.kill
 
     if top_frequently_sql:
         show_frequently_sql(mysql_ip, mysql_port, mysql_user, mysql_password, top_frequently_sql)
     if top_frequently_io:
         show_frequently_io(mysql_ip, mysql_port, mysql_user, mysql_password, top_frequently_io)
     if top_lock_sql:
-        show_lock_sql(mysql_ip, mysql_port, mysql_user, mysql_password)
+        if kill_query:
+            kill_status = 1
+            show_lock_sql(mysql_ip, mysql_port, mysql_user, mysql_password, kill_status)
+        else:
+            show_lock_sql(mysql_ip, mysql_port, mysql_user, mysql_password)
+    if kill_query and not top_lock_sql:
+        print("Error: --kill requires --lock")
+        sys.exit(0)
     if top_index_sql:
         show_redundant_indexes(mysql_ip, mysql_port, mysql_user, mysql_password)
     if top_conn_sql:
@@ -897,4 +917,3 @@ if __name__ == "__main__":
         mysql_status_monitor(mysql_ip, mysql_port, mysql_user, mysql_password)
 
 #############################################################################################
-
