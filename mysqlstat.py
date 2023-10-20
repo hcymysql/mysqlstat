@@ -381,9 +381,34 @@ def show_lock_sql(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_passwor
 
     # kill掉被锁住的SQL
     if kill_status == 1:
-        for row in lock_info:
+        cursor.execute(
+            """
+            SELECT 
+                a.trx_id AS trx_id, 
+                a.trx_state AS trx_state, 
+                a.trx_started AS trx_started, 
+                b.id AS processlist_id, 
+                b.info AS info, 
+                b.user AS user, 
+                b.host AS host, 
+                b.db AS db, 
+                b.command AS command, 
+                b.state AS state, 
+                CONCAT('KILL CONNECTION ', b.id) AS sql_kill_blocking_query
+            FROM 
+                information_schema.INNODB_TRX a, 
+                information_schema.PROCESSLIST b 
+            WHERE 
+                a.trx_mysql_thread_id = b.id and a.trx_state = 'RUNNING'
+            ORDER BY 
+                a.trx_started
+            """
+        )
+
+        kill_info = cursor.fetchall()
+
+        for row in kill_info:
             sql_kill_blocking_query = row[10]
-            sql_kill_blocking_query = sql_kill_blocking_query.replace("QUERY", "CONNECTION")
             try:
                 cursor.execute(sql_kill_blocking_query)
                 print(f"已成功执行 {sql_kill_blocking_query}")
@@ -917,3 +942,4 @@ if __name__ == "__main__":
         mysql_status_monitor(mysql_ip, mysql_port, mysql_user, mysql_password)
 
 #############################################################################################
+
