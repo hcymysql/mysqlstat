@@ -22,9 +22,7 @@ The main functionalities of the mysqlstat tool are as follows:
 * 表大小统计：mysqlstat 可以提供库中每个表的大小统计信息，有助于了解表的存储占用情况。
 * Binlog 分析：它可以在高峰期分析哪些表的 TPS 较高，帮助定位性能瓶颈或优化热点表。
 * 查看主从复制信息：工具可以提供主从复制状态和延迟情况，方便监控和管理主从复制环境。
-
-#### mysqlstat provides real-time monitoring of performance metrics such as QPS (Queries Per Second), TPS (Transactions Per Second), and network bandwidth usage for MySQL servers. It offers the following main functionalities:
-
+---------------------------------------
 * Real-time Monitoring: mysqlstat can monitor and display real-time metrics such as QPS, TPS, and network bandwidth usage of the MySQL server.
 
 * Query Analysis: It can show the most frequently executed SQL statements, helping to identify and optimize queries with poor efficiency.
