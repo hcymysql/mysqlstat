@@ -3,6 +3,13 @@ https://www.oschina.net/p/mysqlstat
 #### mysqlstat 是一个命令行工具，用于实时监控和分析 MySQL 服务器的性能指标和相关信息。
 #### 它可以帮助 DBA（数据库管理员）和开发人员定位和解决数据库性能问题。
 #### 以下是 mysqlstat 工具的主要功能：
+
+mysqlstat is a command-line tool designed for real-time monitoring and analysis of performance metrics and related information of MySQL servers. 
+
+It assists DBAs (Database Administrators) and developers in identifying and resolving database performance issues. 
+
+The main functionalities of the mysqlstat tool are as follows: 
+
 ---------------------------------------------
 * 实时监控：mysqlstat 可以实时监控 MySQL 服务器的 QPS（每秒查询数）、TPS（每秒事务数）以及网络带宽使用情况等指标。
 * 查询分析：它可以展示执行次数最频繁的前N条 SQL 语句，帮助定位查询效率低下的问题，以便进行优化。
@@ -15,6 +22,31 @@ https://www.oschina.net/p/mysqlstat
 * 表大小统计：mysqlstat 可以提供库中每个表的大小统计信息，有助于了解表的存储占用情况。
 * Binlog 分析：它可以在高峰期分析哪些表的 TPS 较高，帮助定位性能瓶颈或优化热点表。
 * 查看主从复制信息：工具可以提供主从复制状态和延迟情况，方便监控和管理主从复制环境。
+
+#### mysqlstat provides real-time monitoring of performance metrics such as QPS (Queries Per Second), TPS (Transactions Per Second), and network bandwidth usage for MySQL servers. It offers the following main functionalities:
+
+* Real-time Monitoring: mysqlstat can monitor and display real-time metrics such as QPS, TPS, and network bandwidth usage of the MySQL server.
+
+* Query Analysis: It can show the most frequently executed SQL statements, helping to identify and optimize queries with poor efficiency.
+
+* Table File Analysis: mysqlstat can list the most frequently accessed table files (.ibd), aiding in identifying hot tables and disk usage.
+
+* Lock Blocking: The tool can display the currently blocked SQL statements due to locks, assisting in identifying and resolving lock-related issues.
+
+* Automatic killing of currently locked SQL statements.
+
+* Deadlock Information: mysqlstat provides information about deadlocks, helping DBAs understand and resolve deadlock issues.
+
+* Index Analysis: It can identify duplicate or redundant indexes, facilitating index optimization and reducing storage space consumption.
+
+* Connection Count Statistics: The tool can provide statistics on the total number of connections from different application IPs, helping to understand the database's connection load.
+
+* Table Size Statistics: mysqlstat can provide size statistics for each table in the database, aiding in understanding the storage occupation of tables.
+
+* Binlog Analysis: It can analyze which tables have high TPS during peak periods, assisting in identifying performance bottlenecks or optimizing hot tables.
+
+* Viewing Master-Slave Replication Information: The tool can provide information about the status and delay of the master-slave replication, facilitating monitoring and management of the replication environment.
+
 
 # 原理
 ![image](https://github.com/hcymysql/mysqlstat/assets/19261879/1d4791f9-5cb9-48e5-85b5-c97cb65cb89f)
