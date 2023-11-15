@@ -86,7 +86,7 @@ options:
 shell> chmod 755 mysqlstat  
 shell> ./mysqlstat -H 192.168.198.239 -P 6666 -u admin -p 'hechunyang'
 ```
-![image](https://github.com/hcymysql/mysqlstat/assets/19261879/a35ca689-3cc0-4ec9-8b5f-6682a1986511)
+![image](https://github.com/hcymysql/mysqlstat/assets/19261879/9fb32687-147f-49b4-a89a-4f957ddb3648)
 
 
 - 执行次数最频繁的前10条SQL语句
