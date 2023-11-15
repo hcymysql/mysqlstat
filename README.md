@@ -96,13 +96,13 @@ shell> ./mysqlstat -H 192.168.198.239 -P 6666 -u admin -p 'hechunyang'
 ```
 shell> ./mysqlstat -H 192.168.198.239 -P 6666 -u admin -p 'hechunyang' --top 10
 ```
-![image](https://github.com/hcymysql/mysqlstat/assets/19261879/11437da2-40c2-4ccf-8f9f-79d9d6f52d3d)
+![image](https://github.com/hcymysql/mysqlstat/assets/19261879/2475d034-c426-4921-97cd-d79f39af774a)
 
 - 访问次数最频繁的前10张表文件ibd
 ```
 shell> ./mysqlstat -H 192.168.198.239 -P 6666 -u admin -p 'hechunyang' --io 10
 ```
-![image](https://github.com/hcymysql/mysqlstat/assets/19261879/025cc1d2-0548-464b-8e1a-1011ae06b6f2)
+![image](https://github.com/hcymysql/mysqlstat/assets/19261879/a36b8117-a027-41cf-93e0-1fb6c74942eb)
 
 - 查看当前锁阻塞的SQL
 ```
