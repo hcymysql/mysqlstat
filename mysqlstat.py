@@ -4,7 +4,9 @@ import time
 import re
 from decimal import Decimal
 from datetime import datetime
-from prettytable import PrettyTable
+from rich import print
+from rich.table import Table
+from rich import box
 import textwrap
 import signal
 import argparse
@@ -29,8 +31,16 @@ def mysql_status_monitor(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_
     """
 
     # 创建表格对象
-    table = PrettyTable()
-    table.field_names = ["Time", "Select", "Insert", "Update", "Delete", "Conn", "Max_conn", "Recv", "Send"]
+    table = Table(title="Real-time Monitoring", box=box.MINIMAL_DOUBLE_HEAD)
+    table.add_column("Time", justify="left", style="cyan") 
+    table.add_column("Select", justify="left")
+    table.add_column("Insert", justify="left")
+    table.add_column("Update", justify="left") 
+    table.add_column("Delete", justify="left")
+    table.add_column("Conn", justify="left")
+    table.add_column("Max_conn", justify="left")
+    table.add_column("Recv", justify="left")
+    table.add_column("Send", justify="left")
 
     # 连接MySQL数据库
     conn = pymysql.connect(
@@ -127,9 +137,17 @@ def mysql_status_monitor(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_
         prev_send = send_bytes
 
         # 添加数据到表格中
-        table.add_row([current_time, select_per_second, insert_per_second, update_per_second, delete_per_second,
-                       conn_count, max_conn, "{:.2f}".format(recv_mbps) + " MBit/s",
-                       "{:.2f}".format(send_mbps) + " MBit/s"])
+        table.add_row(
+            str(current_time),
+            str(select_per_second),
+            str(insert_per_second),
+            str(update_per_second),
+            str(delete_per_second),
+            str(conn_count),
+            str(max_conn),
+            "{:.2f}".format(recv_mbps) + " MBit/s",
+            "{:.2f}".format(send_mbps) + " MBit/s"
+        )
 
         # 清空控制台
         print("\033c", end="")
@@ -140,11 +158,39 @@ def mysql_status_monitor(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_
         # 输出表格后立即清空缓冲区
         sys.stdout.flush()
 
+        
         count += 1
         if count % 25 == 0:
+            
+            # 输出表格
             print(table)
-            table.clear_rows()
+            
+            table.rows.clear()
+            
+            # 创建表格对象
+            table = Table(title="Real-time Monitoring", box=box.MINIMAL_DOUBLE_HEAD)
+            table.add_column("Time", justify="left", style="cyan") 
+            table.add_column("Select", justify="left")
+            table.add_column("Insert", justify="left")
+            table.add_column("Update", justify="left") 
+            table.add_column("Delete", justify="left")
+            table.add_column("Conn", justify="left")
+            table.add_column("Max_conn", justify="left")
+            table.add_column("Recv", justify="left")
+            table.add_column("Send", justify="left")
 
+            table.add_row(
+                str(current_time),
+                str(select_per_second),
+                str(insert_per_second),
+                str(update_per_second),
+                str(delete_per_second),
+                str(conn_count),
+                str(max_conn),
+                "{:.2f}".format(recv_mbps) + " MBit/s",
+                "{:.2f}".format(send_mbps) + " MBit/s"
+            )
+            
         time.sleep(1)
 
     # 关闭游标和连接
@@ -192,11 +238,13 @@ def show_frequently_sql(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_p
         top_info = cursor.fetchall()
 
         # 创建表格对象
-        table = PrettyTable()
-        table.field_names = ["执行语句", "数据库名", "最近执行时间", "SQL执行总次数", "最大执行时间", "平均执行时间"]
-
-        # 设置每列的对齐方式为左对齐
-        table.align = "l"
+        table = Table(title="Query Analysis", box=box.ROUNDED)
+        table.add_column("执行语句", justify="left", style="magenta")
+        table.add_column("数据库名", justify="left")
+        table.add_column("最近执行时间", justify="left", style="cyan")
+        table.add_column("SQL执行总次数", justify="left", style="yellow")
+        table.add_column("最大执行时间", justify="left", style="red")
+        table.add_column("平均执行时间", justify="left")		
 
         for row in top_info:
             query = row[0]
@@ -210,10 +258,14 @@ def show_frequently_sql(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_p
             wrapped_last_seen  = '\n'.join(textwrap.wrap(str(last_seen), width=15))
             wrapped_query = '\n'.join(textwrap.wrap(str(query), width=70))
 
-            # 添加数据到表格中
-            # table.add_row([query, db, last_seen, exec_count, max_latency, avg_latency])
-            table.add_row([wrapped_query, db, wrapped_last_seen, exec_count, max_latency, avg_latency])
-            table.add_row("------")            
+            table.add_row(
+                str(wrapped_query),
+                str(db),
+                str(wrapped_last_seen),
+                str(exec_count),
+                str(max_latency),
+                str(avg_latency)
+            )
 
         # 输出表格
         print(table)
@@ -262,11 +314,13 @@ def show_frequently_io(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_pa
         top_info = cursor.fetchall()
 
         # 创建表格对象
-        table = PrettyTable()
-        table.field_names = ["表文件名", "总共读取次数", "总共读取数据量", "总共写入次数", "总共写入数据量", "总共读写数据量"]
-
-        # 设置每列的对齐方式为左对齐
-        table.align = "l"
+        table = Table(title="Query Analysis", box=box.ROUNDED)
+        table.add_column("表文件名", justify="left", style="blue")
+        table.add_column("总共读取次数", justify="left")
+        table.add_column("总共读取数据量", justify="left")
+        table.add_column("总共写入次数", justify="left")
+        table.add_column("总共写入数据量", justify="left")
+        table.add_column("总共读写数据量", justify="left")
 
         for row in top_info:
             file = row[0]
@@ -277,13 +331,16 @@ def show_frequently_io(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_pa
             total = row[5]
 
             # 处理自动换行
-            wrapped_query = '\n'.join(textwrap.wrap(str(file), width=70))
+            wrapped_file = '\n'.join(textwrap.wrap(str(file), width=70))
 
-            # 添加数据到表格中
-            table.add_row([wrapped_query, count_read, total_read, count_write, total_written, total])
-
-            # 添加数据到表格中
-            # table.add_row([file, count_read, total_read, count_write, total_written, total])
+            table.add_row(
+                str(wrapped_file),
+                str(count_read),
+                str(total_read),
+                str(count_write),
+                str(total_written),
+                str(total)
+            )
 
         # 输出表格
         print(table)
@@ -343,12 +400,18 @@ def show_lock_sql(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_passwor
     lock_info = cursor.fetchall()
 
     # 创建表格对象
-    table = PrettyTable()
-    table.field_names = ["事务ID", "事务状态", "执行时间", "线程ID", "info", "user", "host", "db", "command", "state",
-                         "kill阻塞查询ID"]
-
-    # 设置每列的对齐方式为左对齐
-    table.align = "l"
+    table = Table(title="Lock Blocking", box=box.ROUNDED)
+    table.add_column("事务ID", justify="left")
+    table.add_column("事务状态", justify="left")
+    table.add_column("执行时间", justify="left", style="cyan")
+    table.add_column("线程ID", justify="left")
+    table.add_column("info", justify="left", style="green")
+    table.add_column("user", justify="left")
+    table.add_column("host", justify="left", width=16)
+    table.add_column("db", justify="left")
+    table.add_column("command", justify="left")
+    table.add_column("state", justify="left")
+    table.add_column("kill阻塞查询ID", justify="left", style="red")
 
     for row in lock_info:
         trx_id = row[0]
@@ -371,10 +434,19 @@ def show_lock_sql(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_passwor
         wrapped_state = '\n'.join(textwrap.wrap(str(state), width=10))
         wrapped_sql_kill_blocking_query = '\n'.join(textwrap.wrap(str(sql_kill_blocking_query), width=10))
 
-        # 添加数据到表格中
-        table.add_row([wrapped_trx_id, trx_state, wrapped_trx_started, processlist_id, wrapped_info, user, wrapped_host, db, command, wrapped_state,
-                       wrapped_sql_kill_blocking_query])
-        table.add_row(['-','-','-','-','-','-','-','-','-','-','-'])
+        table.add_row(
+            str(wrapped_trx_id),
+            str(trx_state),
+            str(wrapped_trx_started),
+            str(processlist_id),
+            str(wrapped_info),
+            str(user),
+            str(wrapped_host),
+            str(db),
+            str(command),
+            str(wrapped_state),
+            str(sql_kill_blocking_query)
+        )
 
     # 输出表格
     print(table)
@@ -458,11 +530,12 @@ def show_redundant_indexes(mysql_ip: str, mysql_port: int, mysql_user: str, mysq
         redundant_info = cursor.fetchall()
 
         # 创建表格对象
-        table = PrettyTable()
-        table.field_names = ["数据库名", "表名", "冗余索引名", "冗余索引列名", "删除冗余索引SQL"]
-
-        # 设置每列的对齐方式为左对齐
-        table.align = "l"
+        table = Table(title="Index Analysis", box=box.ROUNDED)
+        table.add_column("数据库名", justify="left")
+        table.add_column("表名", justify="left")
+        table.add_column("冗余索引名", justify="left", style="cyan")
+        table.add_column("冗余索引列名", justify="left")
+        table.add_column("删除冗余索引SQL", justify="left", style="red")
 
         for row in redundant_info:
             table_schema = row[0]
@@ -471,12 +544,14 @@ def show_redundant_indexes(mysql_ip: str, mysql_port: int, mysql_user: str, mysq
             redundant_index_columns = row[3]
             sql_drop_index = row[4]
 
-            # 处理自动换行
-            # wrapped_query = '\n'.join(textwrap.wrap(query, width=70))
-
             # 添加数据到表格中
-            table.add_row([table_schema, table_name, redundant_index_name, redundant_index_columns, sql_drop_index])
-            # table.add_row([wrapped_query, db, last_seen, exec_count, max_latency, avg_latency])
+            table.add_row(
+                str(table_schema),
+                str(table_name),
+                str(redundant_index_name),
+                str(redundant_index_columns),
+                str(sql_drop_index)
+            )
 
         # 输出表格
         print(table)
@@ -518,11 +593,11 @@ def show_conn_count(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_passw
     count_info = cursor.fetchall()
 
     # 创建表格对象
-    table = PrettyTable()
-    table.field_names = ["连接用户", "数据库名", "应用端IP", "数量"]
-
-    # 设置每列的对齐方式为左对齐
-    table.align = "l"
+    table = Table(title="Total number of connections from application-side IP addresses", box=box.ROUNDED)
+    table.add_column("连接用户", justify="left", style="cyan")
+    table.add_column("数据库名", justify="left")
+    table.add_column("应用端IP", justify="left")
+    table.add_column("数量", justify="left", style="green")
 
     for row in conn_info:
         user = row[0]
@@ -531,13 +606,16 @@ def show_conn_count(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_passw
         count = row[3]
 
         # 添加数据到表格中
-        table.add_row([user, db, Client_IP, count])
+        table.add_row(
+            str(user),
+            str(db),
+            str(Client_IP),
+            str(count)
+        )
 
-    table2 = PrettyTable()
-    table2.field_names = ["连接用户", "数量"]
-     
-    # 设置每列的对齐方式为左对齐
-    table2.align = "l"
+    table2 = Table(title="total number of connections", box=box.ROUNDED)
+    table2.add_column("连接用户", justify="left", style="cyan")
+    table2.add_column("数量", justify="left")
 
     c_s = 0
     for row in count_info:
@@ -546,7 +624,10 @@ def show_conn_count(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_passw
         c_s = c_s + count
 
         # 添加数据到表格中
-        table2.add_row([user, count])
+        table2.add_row(
+            str(user),
+            str(count)
+        )
 
     print("1) 连接数总和")
     print(table2)
@@ -604,11 +685,18 @@ def show_table_info(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_passw
     conn_info = cursor.fetchall()
 
     # 创建表格对象
-    table = PrettyTable()
-    table.field_names = ["库名", "表名", "存储引擎", "数据大小(GB)", "索引大小(GB)", "总计(GB)", "主键字段名", "主键字段属性", "主键自增当前值", "主键自增值剩余"]
+    table = Table(title="Table Size Statistics", box=box.ROUNDED)
 
-    # 设置每列的对齐方式为左对齐
-    table.align = "l"
+    table.add_column("库名", justify="left", style="cyan")
+    table.add_column("表名", justify="left", style="blue")
+    table.add_column("存储引擎", justify="left")
+    table.add_column("数据大小(GB)", justify="left")
+    table.add_column("索引大小(GB)", justify="left")
+    table.add_column("总计(GB)", justify="left", style="green")
+    table.add_column("主键字段名", justify="left")
+    table.add_column("主键字段属性", justify="left")
+    table.add_column("主键自增当前值", justify="left")
+    table.add_column("主键自增值剩余", justify="left", style="yellow")
 
     RESIDUAL_AUTO_INCREMENT = 0
 
@@ -647,8 +735,18 @@ def show_table_info(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_passw
         wrapped_RESIDUAL_AUTO_INCREMENT = '\n'.join(textwrap.wrap(str(RESIDUAL_AUTO_INCREMENT), width=20))
 
         # 添加数据到表格中
-        table.add_row([TABLE_SCHEMA, wrapped_TABLE_NAME, ENGINE, DATA_LENGTH, INDEX_LENGTH, TOTAL_LENGTH,
-                       COLUMN_NAME, wrapped_COLUMN_TYPE, wrapped_AUTO_INCREMENT, wrapped_RESIDUAL_AUTO_INCREMENT])
+        table.add_row(
+            str(TABLE_SCHEMA),
+            str(wrapped_TABLE_NAME),
+            str(ENGINE),
+            str(DATA_LENGTH),
+            str(INDEX_LENGTH),
+            str(TOTAL_LENGTH),
+            str(COLUMN_NAME),
+            str(wrapped_COLUMN_TYPE),
+            str(wrapped_AUTO_INCREMENT),
+            str(wrapped_RESIDUAL_AUTO_INCREMENT)
+        )
 
     # 输出表格
     print(table)
@@ -818,7 +916,7 @@ class MySQL_Check(object):
                     slave = current_slave['host'].split(':')[0]
                     print(f" +--{slave}(二级从库)")
             else:
-                print('\033[1;31m%s:%s - 这台机器你没有设置主从复制.\033[0m' % (self._host, self._port))
+                print('[bold yellow]%s:%s - 这台机器你没有设置主从复制.[/bold yellow]' % (self._host, self._port))
         except pymysql.Error as e:
             print("Error %d: %s" % (e.args[0], e.args[1]))
             sys.exit('MySQL Replication Health is NOT OK!')
@@ -835,13 +933,13 @@ class MySQL_Check(object):
             if is_slave == 1:
                 if r_dict['Slave_IO_Running'] == 'Yes' and r_dict['Slave_SQL_Running'] == 'Yes':
                     if r_dict['Seconds_Behind_Master'] == 0:
-                        print('\033[1;36m同步正常，无延迟. \033[0m')
+                        print("[bold cyan]同步正常，无延迟.[/bold cyan]")
                     else:
                         print('同步正常，但有延迟，延迟时间为：%s' % r_dict['Seconds_Behind_Master'])
                 else:
-                    print('\033[1;31m主从复制报错，请检查. Slave_IO_Running状态值是：%s '
+                    print('[bold red]主从复制报错，请检查. Slave_IO_Running状态值是：%s '
                                   ' |  Slave_SQL_Running状态值是：%s  \n  \tLast_Error错误信息是：%s'
-                                  '  \n\n  \tLast_SQL_Error错误信息是：%s \033[0m' \
+                                  '  \n\n  \tLast_SQL_Error错误信息是：%s [/bold red]' \
                                   % (r_dict['Slave_IO_Running'], r_dict['Slave_SQL_Running'], \
                                      r_dict['Last_Error'], r_dict['Last_SQL_Error']))
                     repl_error = cursor.execute('select LAST_ERROR_NUMBER,LAST_ERROR_MESSAGE,LAST_ERROR_TIMESTAMP '
@@ -887,7 +985,7 @@ if __name__ == "__main__":
     parser.add_argument('--dead', action='store_true', help="查看死锁信息")
     parser.add_argument('--binlog', nargs='+', help='Binlog分析-高峰期排查哪些表TPS比较高')
     parser.add_argument('--repl', action='store_true', help="查看主从复制信息")
-    parser.add_argument('-v', '--version', action='version', version='mysqlstat工具版本号: 1.0.10，更新日期：2023-10-20')
+    parser.add_argument('-v', '--version', action='version', version='mysqlstat工具版本号: 1.0.11，更新日期：2023-11-15')
 
     # 解析命令行参数
     args = parser.parse_args()
@@ -942,4 +1040,3 @@ if __name__ == "__main__":
         mysql_status_monitor(mysql_ip, mysql_port, mysql_user, mysql_password)
 
 #############################################################################################
-
