@@ -851,14 +851,13 @@ def analyze_binlog(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_passwo
                 # 获取事件的表名和操作类型
                 table = binlogevent.table
                 event_type = type(binlogevent).__name__
-                print(f"event_type : {event_type}")
+
                 # 初始化记录表的计数器
                 if table not in table_counts:
                     table_counts[table] = {'insert': 0, 'update': 0, 'delete': 0}
 
                 # 根据操作类型更新计数器
                 if event_type == 'WriteRowsEvent':
-                    print(f"event_type: {event_type}")
                     table_counts[table]['insert'] += 1
                 elif event_type == 'UpdateRowsEvent':
                     table_counts[table]['update'] += 1
