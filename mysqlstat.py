@@ -841,7 +841,8 @@ def analyze_binlog(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_passwo
         stream = BinLogStreamReader(connection_settings=source_mysql_settings,
                                     server_id=123456789,
                                     log_file=log_file,
-                                    resume_stream=False)
+                                    log_pos=4,
+                                    resume_stream=True)
 
         # 开始读取日志
         for binlogevent in stream:
@@ -850,13 +851,14 @@ def analyze_binlog(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_passwo
                 # 获取事件的表名和操作类型
                 table = binlogevent.table
                 event_type = type(binlogevent).__name__
-
+                print(f"event_type : {event_type}")
                 # 初始化记录表的计数器
                 if table not in table_counts:
                     table_counts[table] = {'insert': 0, 'update': 0, 'delete': 0}
 
                 # 根据操作类型更新计数器
                 if event_type == 'WriteRowsEvent':
+                    print(f"event_type: {event_type}")
                     table_counts[table]['insert'] += 1
                 elif event_type == 'UpdateRowsEvent':
                     table_counts[table]['update'] += 1
@@ -985,7 +987,7 @@ if __name__ == "__main__":
     parser.add_argument('--dead', action='store_true', help="查看死锁信息")
     parser.add_argument('--binlog', nargs='+', help='Binlog分析-高峰期排查哪些表TPS比较高')
     parser.add_argument('--repl', action='store_true', help="查看主从复制信息")
-    parser.add_argument('-v', '--version', action='version', version='mysqlstat工具版本号: 1.0.11，更新日期：2023-11-15')
+    parser.add_argument('-v', '--version', action='version', version='mysqlstat工具版本号: 1.0.12，更新日期：2023-11-24')
 
     # 解析命令行参数
     args = parser.parse_args()
