@@ -21,6 +21,7 @@ The main functionalities of the mysqlstat tool are as follows:
 * 索引分析：它可以查找重复或冗余的索引，帮助优化索引使用和减少存储空间的占用。
 * 连接数统计：工具可以统计应用端 IP 的连接数总和，有助于了解数据库的连接负载情况。
 * 表大小统计：mysqlstat 可以提供库中每个表的大小统计信息，有助于了解表的存储占用情况。
+* 快速找出没有主键的表
 * Binlog 分析：它可以在高峰期分析哪些表的 TPS 较高，帮助定位性能瓶颈或优化热点表。
 * 查看主从复制信息：工具可以提供主从复制状态和延迟情况，方便监控和管理主从复制环境。
 ---------------------------------------
@@ -77,6 +78,7 @@ options:
   --index               查看重复或冗余的索引
   --conn                查看应用端IP连接数总和
   --tinfo               统计库里每个表的大小
+  --fpk                 快速找出没有主键的表
   --binlog              Binlog分析-高峰期排查哪些表TPS比较高
   --repl                查看主从复制信息
   -v, --version         show program's version number and exit
