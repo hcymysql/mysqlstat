@@ -756,6 +756,69 @@ def show_table_info(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_passw
     conn.close()
 
 
+def show_fpk_info(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_password: str):
+    """
+    mysql状态监控工具，快速找出没有主键的表。
+    Args:
+        mysql_ip: str, MySQL服务器IP地址
+        mysql_port: int, MySQL服务器端口号
+        mysql_user: str, MySQL用户名
+        mysql_password: str, MySQL用户密码
+    Returns:
+        None
+    """
+
+    # 连接MySQL数据库
+    conn = pymysql.connect(
+        host=mysql_ip,
+        port=mysql_port,
+        user=mysql_user,
+        password=mysql_password
+    )
+
+    # 创建游标对象
+    cursor = conn.cursor()
+
+    cursor.execute(
+        """
+        SELECT t.table_schema,
+               t.table_name
+        FROM information_schema.tables t
+        LEFT JOIN information_schema.key_column_usage k
+             ON t.table_schema = k.table_schema
+                AND t.table_name = k.table_name
+                AND k.constraint_name = 'PRIMARY'
+        WHERE t.table_schema NOT IN ('mysql', 'information_schema', 'sys', 'performance_schema')
+          AND k.constraint_name IS NULL
+          AND t.table_type = 'BASE TABLE';
+        """
+    )
+    primary_info = cursor.fetchall()
+
+    # 创建表格对象
+    table = Table(title="Find out no primary key", box=box.ROUNDED)
+
+    table.add_column("库名", justify="left", style="cyan")
+    table.add_column("表名", justify="left", style="blue")
+
+    for row in primary_info:
+        TABLE_SCHEMA = row[0]
+        TABLE_NAME = row[1]
+
+        # 添加数据到表格中
+        table.add_row(
+            str(TABLE_SCHEMA),
+            str(TABLE_NAME)
+        )
+
+    # 输出表格
+    print(table)
+
+    # 关闭游标和连接
+    cursor.close()
+    conn.close()
+
+
 def show_deadlock_info(mysql_ip: str, mysql_port: int, mysql_user: str, mysql_password: str):
     """
     mysql状态监控工具，查看死锁信息。
@@ -983,10 +1046,11 @@ if __name__ == "__main__":
     parser.add_argument('--index', action='store_true', help="查看重复或冗余的索引")
     parser.add_argument('--conn', action='store_true', help="查看应用端IP连接数总和")
     parser.add_argument('--tinfo', action='store_true', help="统计库里每个表的大小")
+    parser.add_argument('--fpk', action='store_true', help="快速找出没有主键的表")
     parser.add_argument('--dead', action='store_true', help="查看死锁信息")
     parser.add_argument('--binlog', nargs='+', help='Binlog分析-高峰期排查哪些表TPS比较高')
     parser.add_argument('--repl', action='store_true', help="查看主从复制信息")
-    parser.add_argument('-v', '--version', action='version', version='mysqlstat工具版本号: 1.0.12，更新日期：2023-11-24')
+    parser.add_argument('-v', '--version', action='version', version='mysqlstat工具版本号: 1.0.13，更新日期：2024-01-25')
 
     # 解析命令行参数
     args = parser.parse_args()
@@ -1003,6 +1067,7 @@ if __name__ == "__main__":
     top_index_sql = args.index
     top_conn_sql = args.conn
     top_table_info = args.tinfo
+    top_fpk = args.fpk
     top_deadlock = args.dead
     binlog_list = args.binlog
     replication = args.repl
@@ -1027,6 +1092,8 @@ if __name__ == "__main__":
         show_conn_count(mysql_ip, mysql_port, mysql_user, mysql_password)
     if top_table_info:
         show_table_info(mysql_ip, mysql_port, mysql_user, mysql_password)
+    if top_fpk:
+        show_fpk_info(mysql_ip, mysql_port, mysql_user, mysql_password)
     if top_deadlock:
         show_deadlock_info(mysql_ip, mysql_port, mysql_user, mysql_password)
     if binlog_list:
@@ -1036,7 +1103,7 @@ if __name__ == "__main__":
         mysql_conn.chek_repl_status()
         mysql_conn.get_slave_status()
     if not top_frequently_sql and not top_frequently_io and not top_lock_sql and not top_index_sql \
-       and not top_conn_sql and not top_table_info and not top_deadlock and not binlog_list\
+       and not top_conn_sql and not top_table_info and not top_fpk and not top_deadlock and not binlog_list\
        and not replication:
         mysql_status_monitor(mysql_ip, mysql_port, mysql_user, mysql_password)
 
