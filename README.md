@@ -3,6 +3,23 @@
 https://www.oschina.net/p/mysqlstat
 #### mysqlstat 是一个命令行工具，用于实时监控和分析 MySQL 服务器的性能指标和相关信息。
 #### 它可以帮助 DBA（数据库管理员）和开发人员定位和解决数据库性能问题。
+
+```
+mysqlstat工具版本号: 1.0.14，更新日期：2024-02-16 - 新增“查看当前未提交事务的SQL”
+最新版下载地址：https://github.com/hcymysql/mysqlstat/releases/tag/mysqlstat_v1.0.14
+
+当一个事务长时间未提交，那么这个连接就不能关闭，内存就不释放。如果并发一大，导致数据库连接数增多，就会对性能产生影响。
+
+例如执行一条SQL：
+begin;
+update t1 set name='张三' where uid=101;
+注：由于这里一直没有commit，该表就会一直持有MDL锁和行锁。
+```
+
+新版本通过指定参数--uncommit即可获取到未提交的事务SQL，如果想将其kill掉，再指定--kill即可。
+<img width="895" alt="6ba49a150c13ceead2c599332ce933c" src="https://github.com/hcymysql/mysqlstat/assets/19261879/cf69e058-2e4d-4f7e-bc78-a225c628731e">
+
+
 #### 以下是 mysqlstat 工具的主要功能：
 
 mysqlstat is a command-line tool designed for real-time monitoring and analysis of performance metrics and related information of MySQL servers. 
